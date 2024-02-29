@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLinkClick }) => { // Utiliser le ty
                 onClick={() => handleClick(3)}
               >
                 <a href="#">
-                  <AiOutlineFileText />
+                  <AiOutlineFundProjectionScreen />
                 </a>
               </li>
               <li className={currentLink === 4 ? "active" : ""}
@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLinkClick }) => { // Utiliser le ty
                 onClick={() => handleClick(6)}
               >
                 <a href="#">
-                  <AiOutlineFundProjectionScreen />
+                  <AiOutlineFileText />
                 </a>
               </li>
             </ul>

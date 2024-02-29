@@ -6,7 +6,9 @@ import Analytic from './Analytic';
 import Balance from './Balance';
 import History from './History';
 import Statistique from './Statistique';
-import Sidebar from './Sidebar'; // 
+import Sidebar from './Sidebar'; 
+import Subscription from './Subscription';
+
 
 function Dashboard() {
     const [activeLink, setActiveLink] = useState(1);
@@ -20,12 +22,21 @@ function Dashboard() {
             <Sidebar onLinkClick={handleSetActiveLink} />
             <div className="grid">
                 {activeLink === 2 ? (
-                    <Balance />// Affiche seulement Statistique si le lien 6 est actif
+                    <Balance />
+                ) : activeLink === 3 ? (
+                    <History />
+                ) : activeLink === 4 ? (
+                    <Analytic />
                 ) : (
                     <>
                         <Navbar />
                         <Analytic />
-                        <History />
+                        <ContentWrapper>
+                            <Subscription />
+                            <div className="placeholder" />
+                            <div className="placeholder" />
+                        </ContentWrapper>
+                        <Balance />
                     </>
                 )}
             </div>
@@ -53,5 +64,16 @@ const Section = styled.section`
         display: flex;
         flex-direction: column;
         gap: 1rem;
+    }
+`;
+const ContentWrapper = styled.div`
+    display: flex; // Set up a flex container
+    justify-content: space-between; // Space out children evenly
+    width: 100%; // Ensure the wrapper takes the full width
+
+    .placeholder {
+        flex: 1; // Each placeholder takes up 1/3 of the space
+        margin: 0 1rem; // Optional: add margins between sections
+        background-color: #f0f0f0; // Optional: just for visualization
     }
 `;

@@ -1,6 +1,9 @@
-import React from 'react'
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React from 'react';
+import {
+  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
 import styled from "styled-components";
+
 function Balance() {
     return (
         <Section>
@@ -10,31 +13,28 @@ function Balance() {
                         <h4>Balance</h4>
                     </div>
                     <div>
-                        <h5>PAST 30 DAY</h5>
+                        <h5>PAST 30 DAYS</h5>
                     </div>
                 </div>
                 <div className="sales__graph">
-                    <ResponsiveContainer width="100%" height="150%">
-
-                    <BarChart
-                        width={500}
-                        height={300}
-                        data={data}
-                        margin={{
-                            top: 20,
-                            right: 30,
-                            left: 20,
-                            bottom: 5,
-                        }}
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                            data={data}
+                            margin={{
+                                top: 20,
+                                right: 30,
+                                left: 20,
+                                bottom: 5,
+                            }}
                         >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="pv" stackId="a" fill="#14121F" />
-                        <Bar dataKey="uv" stackId="a" fill="#E5E5F1" />
-                     </BarChart>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="Dépenser" stackId="a" fill="#14121F" />
+                            <Bar dataKey="Restant" stackId="a" fill="#E5E5F1" />
+                        </BarChart>
                     </ResponsiveContainer>
                 </div>
             </div>
@@ -42,73 +42,79 @@ function Balance() {
     )
 }
 
-export default Balance
+export default Balance;
 const data = [
     {
-      name: 'Page A',
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
+      name: 'Janvier',
+      Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
     },
     {
-      name: 'Page B',
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
+      name: 'Février',
+      Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
     },
     {
-      name: 'Page C',
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
+      name: 'Mars',
+      Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
     },
     {
-      name: 'Page D',
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
+      name: 'Avril',
+      Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
     },
     {
-      name: 'Page E',
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
+      name: 'Mai',
+      Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
     },
     {
-      name: 'Page F',
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
+      name: 'Juin',
+      Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
     },
     {
-      name: 'Page G',
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
+      name: 'Juillet',
+      Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
     },
 {
-    name: 'Page H',
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
+    name: 'Aout',
+    Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
   },
   {
-    name: 'Page I',
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
+    name: 'Septembre',
+    Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
   },
   {
-    name: 'Page J',
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
+    name: 'Octobre',
+    Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
   },
   {
-    name: 'Page K',
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
+    name: 'Novembre',
+    Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
+  },
+  {
+    name: 'Decembre',
+    Restant: 1000,
+      Dépenser: 300,
+      amt: 700,
   },
 
 
