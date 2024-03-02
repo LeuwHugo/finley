@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import Notification from './Notification'
-import Card from './Card'
 import Activity from './Activity'
 import Payment from './Payment'
 
@@ -10,7 +9,6 @@ function RightSidebar() {
         <Section>
             <div className="grid">
             <Notification />
-            <Card />
             <Activity />
             <Payment />
 

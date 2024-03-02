@@ -66,6 +66,21 @@ function Activity() {
         </div>
       </Analytic>
 
+      <Analytic status="payé">
+        <div className="design">
+          <div className="logo">
+            <AiOutlineThunderbolt />
+          </div>
+          <div className="content">
+            <h5>Electric Bill</h5>
+            <h5 className='color'>Payé</h5>
+          </div>
+        </div>
+        <div className="money">
+          <h5>$150</h5>
+        </div>
+      </Analytic>
+
     </Section>
   )
 }

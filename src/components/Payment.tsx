@@ -61,6 +61,21 @@ function Payment() {
                     <h5>$150</h5>            
                 </div>   
         </div>
+
+        <div className="analytic ">
+            <div className="design">
+                <div className="logo">
+                    <BiCar />
+                </div>
+                <div className="content">
+                    <h5>Car Insurance</h5>
+                    <h5 className='color'>Pending</h5>
+                </div>              
+            </div>
+            <div className="money">
+                    <h5>$150</h5>            
+                </div>   
+        </div>
     </Section>
     )
 }
