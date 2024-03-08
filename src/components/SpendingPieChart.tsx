@@ -1,37 +1,24 @@
+// SpendingChartContainer.tsx
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import styled from 'styled-components';
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Données de votre diagramme
 const data = [
-  { name: 'Nourriture', value: 15.5 },
-  { name: 'Logement', value: 12.9 },
-  { name: 'Divertissement', value: 14.1 },
+  { name: 'Courses', value: 15.5 },
+  { name: 'Facture', value: 12.9 },
+  { name: 'Apprentisage', value: 14.1 },
   { name: 'Transport', value: 18.0 },
   { name: 'Santé', value: 13.2 },
   { name: 'Abonnements', value: 11.8 },
-  { name: 'Divers', value: 14.6 },
+
 ];
 
-// Couleurs adaptées au thème de la page
-const COLORS = ['#306998', '#f76c5e', '#ffd166', '#355070', '#6d597a', '#b56576', '#72bda3'];
+const COLORS = ['#FF8042', '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#00C49F', '#FFBB28'];
 
-// Style pour les légendes adapté au thème
-const StyledLegend = styled(Legend)`
-  color: #333333; // Couleur adaptée au texte du tableau de bord
-  // Autres styles pour la légende si nécessaire
-`;
+const RADIAN = Math.PI / 180;
 
-// Style pour les tooltips adapté au thème
-const StyledTooltip = styled(Tooltip)`
-  background-color: #ffffff; // Fond blanc pour la bulle d'info
-  border: 1px solid #dddddd; // Bordure légère pour la bulle d'info
-  // Autres styles pour la tooltip si nécessaire
-`;
-
-// Fonction pour le rendu personnalisé du label
 const renderCustomizedLabel = ({
-  cx, cy, midAngle, innerRadius, outerRadius, percent,
+  cx, cy, midAngle, innerRadius, outerRadius, percent, index,
 }: {
   cx: number,
   cy: number,
@@ -39,40 +26,59 @@ const renderCustomizedLabel = ({
   innerRadius: number,
   outerRadius: number,
   percent: number,
+  index: number,
 }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x  = cx + radius * Math.cos(-midAngle * Math.PI / 180);
-  const y = cy  + radius * Math.sin(-midAngle * Math.PI / 180);
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   return (
-    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central"
-      style={{ fontSize: '14px', fontFamily: 'Arial' }}>
+    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
       {`${(percent * 100).toFixed(1)}%`}
     </text>
   );
 };
 
-const SpendingPieChart = () => (
-  <ResponsiveContainer width="100%" height="100%">
-    <PieChart>
-      <Pie
-        data={data}
-        cx="50%"
-        cy="50%"
-        labelLine={false}
-        label={renderCustomizedLabel}
-        outerRadius={80} // Vous pouvez ajuster ceci en fonction de la taille de votre grille
-        fill="#8884d8"
-        dataKey="value"
-      >
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <StyledTooltip />
-      <StyledLegend />
-    </PieChart>
-  </ResponsiveContainer>
+const SpendingChartContainer = () => (
+  <ChartWrapper>
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          label={renderCustomizedLabel}
+          outerRadius="80%"
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {
+            data.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+          }
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
+  </ChartWrapper>
 );
 
-export default SpendingPieChart;
+export default SpendingChartContainer;
+
+const ChartWrapper = styled.div`
+  background: #F8F8F8;
+  border-radius: 10px;
+  padding: 20px;
+  color: #333;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  /* Explicitly define a height or min-height if the ResponsiveContainer doesn't show */
+  height: 290px; // or min-height: 290px;
+  /* If width is 100%, make sure the parent's width is defined */
+  width: 100%;
+  /* Remove margin auto to test if it's causing the issue */
+  /* margin: auto; */
+  /* If the chart still doesn't render, try commenting out the box-shadow and border-radius */
+  /* box-shadow: none; */
+  /* border-radius: 0; */
+`;

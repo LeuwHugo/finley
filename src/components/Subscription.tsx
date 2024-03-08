@@ -44,7 +44,7 @@ const SubscriptionsContainer = styled.div`
   width: 100%;
   margin: auto;
   overflow-y: auto; 
-  max-height: 260px; 
+  max-height: 290px; 
   // Personnalisation de la barre de défilement pour Webkit browsers
   &::-webkit-scrollbar {
     width: 8px; // Largeur de la barre de défilement

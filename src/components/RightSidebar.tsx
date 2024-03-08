@@ -8,10 +8,8 @@ function RightSidebar() {
     return (
         <Section>
             <div className="grid">
-            <Notification />
             <Activity />
             <Payment />
-
             </div>
         </Section>
     )
@@ -24,7 +22,7 @@ const Section = styled.section`
     top: 0;
     background-color: #ECECF6;
     height: 100vh;
-    width: 20vw;
+    width: 15vw;
     display: flex;
     flex-direction: column;
     align-items: center;

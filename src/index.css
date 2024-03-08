@@ -16,9 +16,18 @@ body {
 
 ::-webkit-scrollbar {
   background-color: #ebecf1;
-  width: 0.4vw0;
+  width: 8px; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: black;
+  background: #888; 
+  border-radius: 4px; 
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
 }

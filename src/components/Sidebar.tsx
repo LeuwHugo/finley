@@ -1,135 +1,123 @@
+// Sidebar.tsx component
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { BiHomeAlt } from 'react-icons/bi';
-import { AiOutlineFundProjectionScreen, AiOutlineTrophy, AiOutlineFileText, AiOutlineDotChart } from 'react-icons/ai';
-import { BsCreditCard2Front } from 'react-icons/bs';
+import { BiHomeAlt, BiLogOut } from 'react-icons/bi';
+import { AiOutlineTransaction, AiOutlineCreditCard, AiOutlineSetting } from 'react-icons/ai';
+import { RiDashboardLine } from 'react-icons/ri';
+import { FiCreditCard } from 'react-icons/fi';
 
 // Définir le type pour les props de Sidebar
 interface SidebarProps {
-  onLinkClick: (link: number) => void; // Définir le type de la fonction de rappel
+  onLinkClick: (link: string) => void; // Définir le type de la fonction de rappel
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onLinkClick }) => { // Utiliser le type SidebarProps
-  const [currentLink, setCurrentLink] = useState(1);
+const Sidebar: React.FC<SidebarProps> = ({ onLinkClick }) => {
+  const [currentLink, setCurrentLink] = useState('dashboard');
 
-  const handleClick = (link: number) => { // Ajouter le typage au paramètre de la fonction
+  const handleClick = (link: string) => {
     setCurrentLink(link);
     onLinkClick(link);
   };
 
   return (
-    <div>
-      <Section>
-        <div className="top">
-          <div className='links'>
-            <ul>
-              <li className={currentLink === 1 ? "active" : ""}
-                onClick={() => handleClick(1)}
-              >
-                <a href="#">
-                  <BiHomeAlt />
-                </a>
-              </li>
-              <li className={currentLink === 2 ? "active" : ""}
-                onClick={() => handleClick(2)}
-              >
-                <a href="#">
-                  <AiOutlineDotChart />
-                </a>
-              </li>
-              <li className={currentLink === 3 ? "active" : ""}
-                onClick={() => handleClick(3)}
-              >
-                <a href="#">
-                  <AiOutlineFundProjectionScreen />
-                </a>
-              </li>
-              <li className={currentLink === 4 ? "active" : ""}
-                onClick={() => handleClick(4)}
-              >
-                <a href="#" className='noti'>
-                  <BsCreditCard2Front />
-                </a>
-              </li>
-              <li className={currentLink === 5 ? "active" : ""}
-                onClick={() => handleClick(5)}
-              >
-                <a href="#">
-                  <AiOutlineTrophy />
-                </a>
-              </li>
-              <li className={currentLink === 6 ? "active" : ""}
-                onClick={() => handleClick(6)}
-              >
-                <a href="#">
-                  <AiOutlineFileText />
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </Section>
-    </div>
+    <SidebarContainer>
+      <Logo>
+        <BiHomeAlt /> {/* Vous pouvez remplacer ceci par votre logo */}
+        <span>Bank El</span>
+      </Logo>
+      <Menu>
+        <MenuItem className={currentLink === 'dashboard' ? "active" : ""} onClick={() => handleClick('dashboard')}>
+          <RiDashboardLine />
+          <span>Dashboard</span>
+        </MenuItem>
+        <MenuItem className={currentLink === 'transaction' ? "active" : ""} onClick={() => handleClick('transaction')}>
+          <AiOutlineTransaction />
+          <span>Transaction</span>
+        </MenuItem>
+        <MenuItem className={currentLink === 'payment' ? "active" : ""} onClick={() => handleClick('payment')}>
+          <BiHomeAlt />
+          <span>Payment</span>
+        </MenuItem>
+        <MenuItem className={currentLink === 'card' ? "active" : ""} onClick={() => handleClick('card')}>
+          <FiCreditCard />
+          <span>Card</span>
+        </MenuItem>
+        <MenuItem className={currentLink === 'insights' ? "active" : ""} onClick={() => handleClick('insights')}>
+          <AiOutlineCreditCard />
+          <span>Insights</span>
+        </MenuItem>
+        <MenuItem className={currentLink === 'settings' ? "active" : ""} onClick={() => handleClick('settings')}>
+          <AiOutlineSetting />
+          <span>Settings</span>
+        </MenuItem>
+        <MenuItem onClick={() => handleClick('logout')}>
+          <BiLogOut />
+          <span>Logout</span>
+        </MenuItem>
+      </Menu>
+    </SidebarContainer>
   );
-}
+};
 
 export default Sidebar;
 
-const Section = styled.section`
+const SidebarContainer = styled.div`
   position: fixed;
   left: 0;
-  background-color: #ECECF6;
+  background-color: #ffffff;
   height: 100vh;
-  width: 6vw;
+  width: 180px; // Ajustez la largeur comme vous le souhaitez
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 2rem 0;
-  gap: 2rem;
+  padding-top: 1rem;
+`;
 
-  .top{
-    display: flex;
-    flex-direction: column;
-    gap: 4rem;
-    width: 100%;
-    .links {
-      ul {
-        margin-bottom: 3rem;
-        .active {
-          border-right: 0.2rem solid black;
-          a {
-            color: black;
-          }
-        }
-        li {
-          display: flex;
-          justify-content: center;
-          border-right: 0.2rem solid transparent;
-          margin: 1rem 0;
-          list-style-type: none;
-          a {
-            text-decoration: none;
-            color: grey;
-            font-size: 1.6rem;
-          }
-          .noti {
-            display: flex;
-            align-items: center;
-            span {
-              background-color: red;
-              font-size: 0.5rem;
-              padding: 2px 5px;
-              border-radius: 50%;
-              color: white;
-              margin-left: 0.5rem;
-            }
-          }
-          &:hover a {
-            color: black;
-          }
-        }
-      }
-    }
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 3rem;
+  svg {
+    color: white;
+    font-size: 1.5rem;
+  }
+  span {
+    color: white;
+    font-weight: bold;
+  }
+`;
+
+const Menu = styled.ul`
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 50px  ;
+`;
+
+const MenuItem = styled.li`
+  color: #7b7b7b;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s; /* Transition pour un effet de survol lisse */
+
+  &:hover, &.active {
+    color: #0c0c0a;
+    background-color: #f0f0f0; /* Couleur de fond au survol et élément actif */
+  }
+  svg {
+    font-size: 1.5rem;
+    min-width: 2rem; /* Garantit que les icônes sont alignées */
+  }
+  span {
+    display: inline; /* Changez 'none' en 'inline' pour afficher le texte à côté des icônes */
+    font-size: 0.85rem;
   }
 `;
