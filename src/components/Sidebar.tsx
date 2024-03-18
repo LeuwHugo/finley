@@ -67,7 +67,7 @@ const SidebarContainer = styled.div`
   left: 0;
   background-color: #ffffff;
   height: 100vh;
-  width: 180px; // Ajustez la largeur comme vous le souhaitez
+  width: 230px; // Ajustez la largeur comme vous le souhaitez
   display: flex;
   flex-direction: column;
   align-items: center;
