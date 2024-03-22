@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IoIosArrowBack, IoIosArrowForward, IoMdMan } from 'react-icons/io'; // Ajout de IoMdMan pour l'icône de la banque
 import { BsBank2 } from "react-icons/bs";
-import mastercardLogo from './src/assets/mastercard2.png';
 import { MdArrowOutward } from "react-icons/md";
 import { IconType } from 'react-icons';
-import { MdAccountBalance } from "react-icons/md"; // Un exemple d'une autre icône que vous pourriez utiliser
 import { FaBitcoin, FaDollarSign, FaEuroSign, FaPoundSign } from "react-icons/fa";
+import { HiMiniArrowUpRight, HiMiniArrowDownRight} from "react-icons/hi2";
+
 
 type AccountData = {
   type: string;
@@ -210,7 +210,7 @@ const TotalBalance = () => {
   const accountsData: AccountData[] = [
 
     {
-      type: "Type de compte 1",
+      type: "Bancaire",
       bank: "Banque 1",
       balance: 25000 ,
       color: "#2d9c90",
@@ -218,7 +218,7 @@ const TotalBalance = () => {
       type_logo: BsBank2
     },
     {
-      type: "Type de compte 2",
+      type: "Crypto Wallet",
       bank: "Banque 2",
       balance: 30000,
       color: "#ff5733",
@@ -246,7 +246,7 @@ const TotalBalance = () => {
     {
       type: "Type de compte C",
       bank: "Banque C",
-      balance: 25000.25 ,
+      balance: 25000.25,
       color: "#f5429e",
       account_logo: "./src/assets/bankC.png",
       type_logo: FaPoundSign
@@ -264,12 +264,17 @@ const TotalBalance = () => {
     setActiveDot(prev => Math.min(prev + 1, accountsData.length - 1)); // Met à jour l'index du point actif
   };
 
+  // Calcul de la somme des soldes
+  const totalBalance = accountsData.reduce((acc, account) => acc + account.balance, 0);
+
   
 
   return (
     <TotalBalanceContainer>
       <ValuesContainer>
-        <TotalBalanceValue>240,399€</TotalBalanceValue>
+      <TotalBalanceValue>
+          {totalBalance.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+        </TotalBalanceValue>
         <AllAccountsText>Tous les comptes</AllAccountsText>
       </ValuesContainer>
       <Separator />
@@ -290,7 +295,7 @@ const TotalBalance = () => {
         {accountsData[activeAccountIndex].balance.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
         </BalanceValue>
           <OutwardArrowContainer>
-            <MdArrowOutward size={30} color="#2d9c90" />
+            <HiMiniArrowUpRight size={30} color="#2d9c90" />
           </OutwardArrowContainer>
         </BalanceValueContainer>
         <MastercardLogo src={accountsData[activeAccountIndex].account_logo} alt="Account Logo" />

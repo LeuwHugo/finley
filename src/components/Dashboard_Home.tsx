@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import TotalBalance from './TotalBalance'; // Assurez-vous que le chemin d'importation est correct
-import Test1 from './test1';
+import Goals from './Goals';
 import Test2 from './test2';
 import Test3 from './test3';
 import Test4 from './test4';
@@ -12,7 +12,7 @@ const DashboardPrincipal: React.FC = () => {
     <GridContainer>
       <TotalBalance />
       <ObjectifTitle>Objectif</ObjectifTitle> {/* Positionné dans l'espace entre les composants */}
-      <Test1/>
+      <Goals/>
       <Test2/>
       <Test3 />
       <Test4 />
