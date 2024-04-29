@@ -1,19 +1,37 @@
 // DashboardPrincipal.tsx
 import React from 'react';
 import styled from 'styled-components';
-import TotalBalance from './TotalBalance'; // Assurez-vous que le chemin d'importation est correct
-import Goals from './Goals';
-import Test2 from './test2';
-import Test3 from './test3';
-import Test4 from './test4';
-import Test5 from './test5';
+import TotalBalance from './Dashboard/TotalBalance'; // Assurez-vous que le chemin d'importation est correct
+import Goals from './Dashboard/Goals';
+import FactureAVenir from './Dashboard/FactureAVenir';
+import Test3 from './Dashboard/test3';
+import Test4 from './Dashboard/test4';
+import Test5 from './Dashboard/test5';
+
+// Example charge data
+const chargesData = [
+  {
+    date: "May 15",
+    description: "Figma",
+    subtitle: "Figma - Monthly",
+    amount: "150 €",
+    note: "Last Charge - 14 May, 2022"
+  },
+  {
+    date: "June 12",
+    description: "Adobe",
+    subtitle: "Adobe - Annual",
+    amount: "180 €",
+    note: "Last Charge - 11 June, 2022"
+  },
+];
 const DashboardPrincipal: React.FC = () => {
   return (
     <GridContainer>
       <TotalBalance />
       <ObjectifTitle>Objectif</ObjectifTitle> {/* Positionné dans l'espace entre les composants */}
       <Goals/>
-      <Test2/>
+      <FactureAVenir charges={chargesData} />
       <Test3 />
       <Test4 />
       <Test5 />

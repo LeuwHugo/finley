@@ -1,3 +1,4 @@
+
 import React from 'react';
 import styled from 'styled-components';
 import { PieChart, Pie, Cell } from 'recharts';
@@ -47,7 +48,7 @@ const Separator = styled.hr`
 const GaugeChartContainer = styled.div`
   margin-top: 20px;
   position: relative;
-  left: 80%;
+  left: 76%;
   bottom : 5%;
   transform: translateX(-50%);
 `;
@@ -157,7 +158,7 @@ const Goals = () => {
     <GoalsContainer>
       <ValuesContainer>
         <GoalsValueContainer>
-          <GoalsValue>{goalEnd}€</GoalsValue>
+          <GoalsValue>{goalEnd} €</GoalsValue>
           <IconContainer>
             <HiPencilSquare />
           </IconContainer>
@@ -166,17 +167,16 @@ const Goals = () => {
       </ValuesContainer>
       <Separator />
       <PieChartWithNeedle achievedValue={achievedValue} remainingValue={remainingValue} />
-      <ValueDiv style={{ left: '71%', bottom: '7%' }}>
-        <GoalsValue>{`${achievedValue}€`}</GoalsValue>
+      <ValueDiv style={{ left: '68%', bottom: '6%' }}>
+        <GoalsValue>{`${achievedValue} €`}</GoalsValue>
       </ValueDiv>
-      <ValueDiv style={{ left: '50%', bottom: '8%' }}>
-        <AllAccountsText>{`${0}€`}</AllAccountsText>
+      <ValueDiv style={{ left: '47%', bottom: '8%' }}>
+        <AllAccountsText>{`${0} €`}</AllAccountsText>
       </ValueDiv>
-      <ValueDiv style={{ left: '92%', bottom: '8%' }}>
-        <AllAccountsText>{`${goalEnd}€`}</AllAccountsText>
+      <ValueDiv style={{ left: '89%', bottom: '8%' }}>
+        <AllAccountsText>{`${goalEnd} €`}</AllAccountsText>
       </ValueDiv>
     </GoalsContainer>
   );
 };
-
 export default Goals;

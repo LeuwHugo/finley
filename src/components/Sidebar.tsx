@@ -33,28 +33,28 @@ const Sidebar: React.FC<SidebarProps> = ({ onLinkClick }) => {
         </MenuItem>
         <MenuItem className={currentLink === 'transaction' ? "active" : ""} onClick={() => handleClick('transaction')}>
           <AiOutlineTransaction />
-          <span>Transaction</span>
+          <span>Comptes</span>
         </MenuItem>
         <MenuItem className={currentLink === 'payment' ? "active" : ""} onClick={() => handleClick('payment')}>
           <BiHomeAlt />
-          <span>Payment</span>
+          <span>Transactions</span>
         </MenuItem>
         <MenuItem className={currentLink === 'card' ? "active" : ""} onClick={() => handleClick('card')}>
           <FiCreditCard />
-          <span>Card</span>
+          <span>Abonnement</span>
         </MenuItem>
         <MenuItem className={currentLink === 'insights' ? "active" : ""} onClick={() => handleClick('insights')}>
           <AiOutlineCreditCard />
-          <span>Insights</span>
+          <span>Dépenses</span>
         </MenuItem>
-        <MenuItem className={currentLink === 'settings' ? "active" : ""} onClick={() => handleClick('settings')}>
+       {/* <MenuItem className={currentLink === 'settings' ? "active" : ""} onClick={() => handleClick('settings')}>
           <AiOutlineSetting />
           <span>Settings</span>
         </MenuItem>
         <MenuItem onClick={() => handleClick('logout')}>
           <BiLogOut />
           <span>Logout</span>
-        </MenuItem>
+        </MenuItem>*/}
       </Menu>
     </SidebarContainer>
   );
