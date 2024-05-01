@@ -35,7 +35,7 @@
     "@types/styled-components": "^5.1.34",
     "@vitejs/plugin-react": "^4.0.4",
     "autoprefixer": "^10.4.17",
-    "electron": "^28.1.0",
+    "electron": "^30.0.1",
     "electron-builder": "^24.6.3",
     "postcss": "^8.4.31",
     "react": "^18.2.0",
