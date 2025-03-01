@@ -1,24 +1,25 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import Sidebar from './components/Sidebar';
-import DashboardPrincipal from './components/Dashboard';
-import Transaction from './components/Transaction';
-const App: React.FC = () => {
-  // Ajouter un état pour le lien actuel avec TypeScript
-  const [currentLink, setCurrentLink] = useState<string>('dashboard');
+import React from "react";
+import * as ReactDOM from "react-dom/client";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Dashboard from "./pages/Dashboard";
+import Comptes from "./pages/Comptes";
+import Transactions from "./pages/Transactions";
+import Settings from "./pages/Settings";
+import "./index.css";
 
-  return (
-    <Div>
-      <Sidebar onLinkClick={setCurrentLink} />
-      {/* Afficher conditionnellement DashboardPrincipal en fonction de currentLink */}
-      {currentLink === 'dashboard' && <DashboardPrincipal />}
-      {currentLink === 'transaction' && <Transaction />}
-    </Div>
-  );
-};
+const App = () => (
+  <Router>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="comptes" element={<Comptes />} />
+        <Route path="transactions" element={<Transactions />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
+  </Router>
+);
 
-export default App;
-
-const Div = styled.div`
-  position: relative;
-`;
+const root = ReactDOM.createRoot(document.getElementById("app"));
+root.render(<App />);
