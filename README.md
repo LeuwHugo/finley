@@ -1,47 +1,24 @@
-# 🚀 Electron React TypeScript Tailwind Starter
+# 📊 Finley - Gestion de finances personnelles
 
-This starter repository provides a ready-to-use project template for building cross-platform desktop applications with Electron, React, TypeScript, and Tailwind CSS, utilizing Electron Forge for easy packaging and publishing.
+Finley est une application de gestion de finances personnelles, développée avec **Electron, React, TypeScript, Tailwind CSS et Supabase**.
 
-## Features
-- Electron for building cross-platform desktop applications
-- React for creating scalable, component-based UIs
-- TypeScript for strongly-typed and maintainable JavaScript code
-- Tailwind CSS for utility-first styling and rapid UI development
-- Electron Forge for simple packaging and publishing of Electron applications
+## 🚀 Fonctionnalités principales
+- 💰 **Tableaux de bord financiers** pour un suivi clair des finances.
+- 🏦 **Gestion des comptes bancaires** et des transactions.
+- 📊 **Statistiques interactives** pour analyser les dépenses et revenus.
+- 🔐 **Authentification sécurisée** avec Supabase.
+- 🎨 **Interface moderne et responsive** avec Tailwind CSS.
 
+## 🏗 Technologies utilisées
+- **Electron** : Framework pour applications desktop multi-plateformes.
+- **React + TypeScript** : UI réactive et robuste.
+- **Tailwind CSS** : Styling rapide et efficace.
+- **Supabase** : Backend as a Service (authentification et base de données).
+- **react-router-dom** : Gestion de la navigation.
 
-## Getting Started
-Clone the repository:
-```bash
-git clone https://github.com/rostislavjadavan/electron-react-typescript-tailwind-starter.git
-```
+## 📂 Installation & Démarrage
 
-Navigate to the project folder:
-```bash
-cd electron-react-typescript-tailwind-starter
-```
-
-Install dependencies:
-```bash
-npm install
-```
-
-Start the development server:
-```bash
-npm run start
-```
-
-# Package the project
-
-Package the project as an Electron app:
-
-```bash
-npm run make
-```
-
-For detailed configuration visit: https://www.electronforge.io
-
-## Customization
-
-You can easily customize the project to suit your needs by modifying the source code within the `src` directory. The project is set up with a simple example that you can use as a starting point for your application.
-
+### 1️⃣ **Cloner le projet**
+```sh
+git clone https://github.com/ton-utilisateur/finley.git
+cd finley
