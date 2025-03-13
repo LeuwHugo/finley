@@ -179,27 +179,56 @@ const Dashboard = () => {
         {/* Grille des cartes (responsive) */}
         <div className="grid grid-cols-6 grid-rows-8 gap-6 flex-1 h-full">
           
-          {/* 💰 Solde Total */}
-          <div className="col-span-4 row-span-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl shadow-lg flex flex-col justify-between relative">
+         {/* 💰 Solde Total */}
+          <div className="col-span-4 row-span-2 bg-gradient-to-br from-indigo-500 to-blue-600 text-white p-8 rounded-3xl shadow-xl flex flex-col justify-between relative">
+            
+            {/* En-tête avec Titre & Bouton Afficher Tous */}
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">💰 Solde Total</h2>
-              <span className="bg-white text-blue-600 px-3 py-1 text-xs font-semibold rounded-full">
-                {accounts.length} Comptes
-              </span>
+              <h2 className="text-2xl font-bold tracking-wide">💰 Solde Total</h2>
+              <button className="text-sm bg-white text-blue-600 px-3 py-1 font-semibold rounded-full shadow-md hover:bg-gray-100 transition">
+                Tous les Comptes
+              </button>
             </div>
-            <p className="text-5xl font-extrabold mt-4">{totalBalance.toFixed(2)} €</p>
+
+            {/* 🔹 Montant Total */}
+            <p className="text-5xl font-extrabold mt-4 tracking-wide drop-shadow-md">{totalBalance.toFixed(2)} €</p>
+
+            {/* 🔹 Liste des comptes avec un carrousel horizontal */}
             <div className="mt-4">
-              <h3 className="text-lg font-semibold">Détails par compte :</h3>
-              <ul className="mt-2 space-y-1">
+              <h3 className="text-lg font-semibold opacity-90">Détails par compte :</h3>
+              <div className="mt-2 overflow-x-auto flex gap-4 scroll-smooth scroll-snap-x-mandatory px-1 py-2">
+                
                 {accounts.map((account) => (
-                  <li key={account.id} className="flex justify-between text-sm opacity-90">
-                    <span>{account.name}</span>
-                    <span className="font-bold">{account.initial_balance.toFixed(2)} €</span>
-                  </li>
+                  <div key={account.id} className="bg-white text-gray-900 min-w-[180px] p-4 rounded-xl shadow-lg flex flex-col items-center gap-2 scroll-snap-align-start">
+                    
+                    {/* 🔹 Icône dynamique selon le type de compte */}
+                    <div className="text-2xl">
+                      {account.type === "credit_card" ? "💳" : account.type === "savings" ? "🏦" : "💼"}
+                    </div>
+
+                    <span className="text-sm font-semibold text-gray-500">{account.name}</span>
+                    <span className="text-xl font-bold text-blue-600">{account.initial_balance.toFixed(2)} €</span>
+                  </div>
                 ))}
-              </ul>
+
+              </div>
+            </div>
+
+            {/* 🔹 Variation du solde par rapport au mois précédent */}
+            <div className="mt-2 flex justify-end">
+              {totalBalance >= 0 ? (
+                <span className="text-green-300 text-sm font-semibold flex items-center">
+                  📈 +5% par rapport au mois dernier
+                </span>
+              ) : (
+                <span className="text-red-300 text-sm font-semibold flex items-center">
+                  📉 -3% par rapport au mois dernier
+                </span>
+              )}
             </div>
           </div>
+
+
     
           {/* 📅 Transactions par Semaine */}
           <div className="col-span-2 row-span-2 bg-white p-8 rounded-2xl shadow-lg flex flex-col justify-between">

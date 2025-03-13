@@ -1,5 +1,7 @@
 import { app, BrowserWindow, session } from "electron";
 import * as dotenv from "dotenv";
+import path from "path";
+
 dotenv.config();
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -11,8 +13,9 @@ if (require("electron-squirrel-startup")) {
 
 const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 800, // 🔥 Augmentation de la hauteur pour une meilleure UX
+    width: 1200, // 🔥 Augmentation de la largeur pour une meilleure UX
+    icon: path.join(__dirname, "assets", "minimal_budget_icon.ico"), // 🔥 Ajout de l'icône de l'application
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,
@@ -27,19 +30,19 @@ const createWindow = (): void => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-      "Content-Security-Policy": [
-        isDev
-          ? "default-src 'self' 'unsafe-eval'; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-            "connect-src 'self' ws://localhost:3000 https://srunnvweahqpxvmzxxsc.supabase.co https://api.coingecko.com; " +
-            "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co/storage/v1/object/public/logos/; " +
-            "style-src 'self' 'unsafe-inline';"
-          : "default-src 'self'; " +
-            "script-src 'self'; " +
-            "connect-src 'self' https://srunnvweahqpxvmzxxsc.supabase.co https://api.coingecko.com; " +
-            "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co/storage/v1/object/public/logos/; " +
-            "style-src 'self' 'unsafe-inline';"
-      ],
+        "Content-Security-Policy": [
+          isDev
+            ? "default-src 'self' 'unsafe-eval'; " +
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+              "connect-src 'self' ws://localhost:3000 https://srunnvweahqpxvmzxxsc.supabase.co https://api.coingecko.com; " +
+              "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co/storage/v1/object/public/logos/; " +
+              "style-src 'self' 'unsafe-inline';"
+            : "default-src 'self'; " +
+              "script-src 'self'; " +
+              "connect-src 'self' https://srunnvweahqpxvmzxxsc.supabase.co https://api.coingecko.com; " +
+              "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co/storage/v1/object/public/logos/; " +
+              "style-src 'self' 'unsafe-inline';",
+        ],
       },
     });
   });

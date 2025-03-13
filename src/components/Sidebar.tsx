@@ -6,7 +6,7 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className={`h-screen bg-gray-900 text-white flex flex-col transition-all duration-300 ${isCollapsed ? "w-16" : "w-64"}`}>
+    <div className={`min-h-screen bg-gray-900 text-white flex flex-col transition-all duration-300 ${isCollapsed ? "w-16" : "w-64"}`}>
       {/* Bouton pour ouvrir/fermer la sidebar */}
       <div className="flex items-center justify-between p-4">
         {!isCollapsed && <h1 className="text-xl font-bold transition-opacity duration-300">Finley</h1>}

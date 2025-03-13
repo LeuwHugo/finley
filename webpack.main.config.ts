@@ -1,14 +1,12 @@
 import type { Configuration } from 'webpack';
-
+import path from 'path';
+import dotenv from 'dotenv';
 import { rules } from './webpack.rules';
 
-export const mainConfig: Configuration = {
-  /**
-   * This is the main entry point for your application, it's the first file
-   * that runs in the main process.
-   */
-  entry: './src/index.ts',
-  // Put your normal webpack config below here
+dotenv.config(); // 🔥 Charge les variables d'environnement
+
+const mainConfig: Configuration = {
+  entry: path.resolve(__dirname, 'src', 'index.ts'), // 🔥 Assure un chemin d'entrée correct
   module: {
     rules,
   },
@@ -16,3 +14,6 @@ export const mainConfig: Configuration = {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
 };
+
+// 🔥 Assure l'exportation correcte pour éviter l'erreur
+export { mainConfig };
