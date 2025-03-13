@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FiHome, FiCreditCard, FiTrendingUp, FiSettings, FiMenu, FiX } from "react-icons/fi";
+import { FiHome, FiCreditCard, FiTrendingUp, FiSettings, FiMenu, FiX, FiPieChart } from "react-icons/fi";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -23,6 +23,7 @@ const Sidebar = () => {
         <SidebarItem to="/" icon={<FiHome size={22} />} label="Dashboard" isCollapsed={isCollapsed} />
         <SidebarItem to="/comptes" icon={<FiCreditCard size={22} />} label="Comptes" isCollapsed={isCollapsed} />
         <SidebarItem to="/transactions" icon={<FiTrendingUp size={22} />} label="Transactions" isCollapsed={isCollapsed} />
+        <SidebarItem to="/budget" icon={<FiPieChart size={22} />} label="Budget" isCollapsed={isCollapsed} /> {/* ✅ Ajout de l'onglet Budget */}
         <SidebarItem to="/settings" icon={<FiSettings size={22} />} label="Paramètres" isCollapsed={isCollapsed} />
       </nav>
     </div>

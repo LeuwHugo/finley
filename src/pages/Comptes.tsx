@@ -16,6 +16,7 @@ const Comptes = () => {
   const [filterType, setFilterType] = useState(""); // Filtrer par type de compte
   const [filterCurrency, setFilterCurrency] = useState(""); // Filtrer par devise
   const [selectedAccount, setSelectedAccount] = useState(null); // Compte sélectionné pour édition
+  const [transactions, setTransactions] = useState([]);
 
   const [newAccount, setNewAccount] = useState({
     name: "",
@@ -41,6 +42,15 @@ const Comptes = () => {
       const { data, error } = await supabase.from("currencies").select("*");
       if (error) console.error("Erreur chargement devises :", error.message);
       else setCurrencies(data);
+    };
+
+    const fetchTransactions = async () => {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("id, type, amount, account_id, related_account_id");
+  
+      if (error) console.error("Erreur chargement transactions :", error.message);
+      else setTransactions(data);
     };
 
     const fetchLogos = async () => {
@@ -71,6 +81,7 @@ const Comptes = () => {
     fetchCurrencies();
     fetchLogos();
     fetchExchangeRates();
+    fetchTransactions();
   }, []);
 
   // Filtrage des comptes
@@ -84,12 +95,12 @@ const Comptes = () => {
 
   // Fonction pour convertir en EUR
   const convertToEuro = (amount: number, currencyCode: string) => {
-    if (currencyCode === "EUR") return amount; // Si déjà en EUR, ne rien faire
+    if (currencyCode === "EUR") return Number(amount.toFixed(2)); // Déjà en EUR, arrondi
     if (!exchangeRates || Object.keys(exchangeRates).length === 0) return "Chargement...";
-
+  
     const lowerCode = currencyCode?.toLowerCase();
     return exchangeRates[lowerCode]
-      ? (amount / exchangeRates[lowerCode]).toFixed(2)
+      ? Number((amount / exchangeRates[lowerCode]).toFixed(2))
       : "Indisponible";
   };
 
@@ -106,6 +117,26 @@ const Comptes = () => {
       symbol: string;
     };
   }
+
+  const getAccountBalance = (account: Account) => {
+    let balance = account.initial_balance;
+  
+    transactions.forEach((transaction) => {
+      if (transaction.account_id === account.id) {
+        if (transaction.type === "income") balance += transaction.amount;
+        if (transaction.type === "expense") balance -= transaction.amount;
+        if (transaction.type === "transfer") balance -= transaction.amount;
+      }
+  
+      if (transaction.related_account_id === account.id && transaction.type === "transfer") {
+        balance += transaction.amount;
+      }
+    });
+  
+    return Number(balance.toFixed(2)); // 🔥 Force le format numérique avec 2 décimales
+  };
+  
+  
 
   const handleEditAccount = (account: Account) => {
     setSelectedAccount(account);
@@ -290,10 +321,10 @@ const Comptes = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                {account.initial_balance} {account.currencies?.symbol}
+                {getAccountBalance(account)} {account.currencies?.symbol}
               </motion.p>
               <p className="text-gray-600 text-sm">
-                ≈ {convertToEuro(account.initial_balance, account.currencies?.code)} €
+                ≈ {convertToEuro(getAccountBalance(account), account.currencies?.code)} €
               </p>
   
               {/* Badge devises */}

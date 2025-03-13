@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Comptes from "./pages/Comptes";
 import Transactions from "./pages/Transactions";
+import Budget from "./pages/Budget"; // ✅ Import de la nouvelle page Budget
 import Settings from "./pages/Settings";
 import "./index.css";
 
@@ -15,6 +16,7 @@ const App = () => (
         <Route index element={<Dashboard />} />
         <Route path="comptes" element={<Comptes />} />
         <Route path="transactions" element={<Transactions />} />
+        <Route path="budget" element={<Budget />} /> {/* ✅ Ajout de la route Budget */}
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
