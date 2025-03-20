@@ -1,6 +1,6 @@
 {
   "name": "finley",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Ready-to-use project template for building cross-platform desktop applications with Electron, React, TypeScript, and Tailwind CSS.",
   "main": ".webpack/main",
   "scripts": {

@@ -11,12 +11,12 @@ import { rendererConfig } from './webpack.renderer.config';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    icon: path.resolve(__dirname, 'src', 'assets', 'minimal_budget_icon'), // 🔥 Définition de l'icône principale
+    icon: path.resolve(__dirname, 'public', 'icon', 'icon'), // 🔥 Définition de l'icône principale
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      setupIcon: path.resolve(__dirname, 'src', 'assets', 'minimal_budget_icon.ico'), // 🔥 Icône pour l'installateur Windows
+      setupIcon: path.resolve(__dirname, 'public', 'icon', 'icon.ico'), // 🔥 Icône pour l'installateur Windows
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),

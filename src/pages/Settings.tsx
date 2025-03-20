@@ -11,11 +11,15 @@ const Settings = () => {
   const [filterType, setFilterType] = useState("");
   const [editingCategory, setEditingCategory] = useState(null);
   const [updatedCategory, setUpdatedCategory] = useState({ name: "", type: "expense" });
+  const [creditCategories, setCreditCategories] = useState([]);
+  const [newCreditCategory, setNewCreditCategory] = useState(""); // Pour l'ajout
 
   useEffect(() => {
     fetchAccounts();
     fetchCategories();
     fetchCurrencies();
+    fetchCreditCategories(); // 🔹 Récupérer les catégories de crédits
+
   }, []);
 
   // 🔹 Filtrer les catégories par nom et type
@@ -23,6 +27,26 @@ const filteredCategories = categories.filter(category =>
   category.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
   (filterType ? category.type === filterType : true)
 );
+
+const addCreditCategory = async () => {
+  if (!newCreditCategory.trim()) return;
+  const { error } = await supabase.from("credit_categories").insert([{ name: newCreditCategory }]);
+  if (!error) {
+    setNewCreditCategory(""); // Réinitialiser l'input
+    fetchCreditCategories(); // Recharger les catégories
+  }
+};
+
+const deleteCreditCategory = async (id: number) => {
+  if (!window.confirm("Voulez-vous vraiment supprimer cette catégorie de crédit ?")) return;
+  const { error } = await supabase.from("credit_categories").delete().eq("id", id);
+  if (!error) fetchCreditCategories(); // Rafraîchir la liste
+};
+
+const fetchCreditCategories = async () => {
+  const { data, error } = await supabase.from("credit_categories").select("*");
+  if (!error) setCreditCategories(data);
+};
 
 // 🔹 Ajouter une Nouvelle Catégorie
 const addCategory = async () => {
@@ -81,8 +105,9 @@ const deleteCategory = async (id: number) => {
       {/* Navigation des onglets */}
       <div className="flex space-x-4 border-b pb-3">
         <button onClick={() => setActiveTab("accounts")} className={`py-2 px-4 ${activeTab === "accounts" ? "border-b-2 border-blue-500" : ""}`}>Comptes</button>
-        <button onClick={() => setActiveTab("categories")} className={`py-2 px-4 ${activeTab === "categories" ? "border-b-2 border-blue-500" : ""}`}>Catégories</button>
+        <button onClick={() => setActiveTab("categories")} className={`py-2 px-4 ${activeTab === "categories" ? "border-b-2 border-blue-500" : ""}`}>Catégories de Transactions</button>
         <button onClick={() => setActiveTab("currencies")} className={`py-2 px-4 ${activeTab === "currencies" ? "border-b-2 border-blue-500" : ""}`}>Devises</button>
+        <button onClick={() => setActiveTab("credit_categories")} className={`py-2 px-4 ${activeTab === "credit_categories" ? "border-b-2 border-blue-500" : ""}`}>Catégories de Crédits</button>
       </div>
 
       {/* Contenu des onglets */}
@@ -189,6 +214,42 @@ const deleteCategory = async (id: number) => {
           </ul>
         </div>
         )}
+
+        {activeTab === "credit_categories" && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">🏦 Catégories de Crédits</h2>
+
+            {/* Formulaire d'Ajout */}
+            <div className="flex gap-4 mb-4">
+              <input
+                type="text"
+                placeholder="Nouvelle catégorie"
+                value={newCreditCategory}
+                onChange={(e) => setNewCreditCategory(e.target.value)}
+                className="border p-2 rounded-md w-2/3"
+              />
+              <button onClick={addCreditCategory} className="bg-blue-500 text-white px-4 py-2 rounded-md">
+                Ajouter
+              </button>
+            </div>
+
+            {/* Liste des Catégories */}
+            <ul className="space-y-2">
+              {creditCategories.map((category) => (
+                <li key={category.id} className="flex justify-between border p-2 rounded-md">
+                  <span>{category.name}</span>
+                  <button
+                    onClick={() => deleteCreditCategory(category.id)}
+                    className="bg-red-500 text-white px-2 py-1 rounded-md"
+                  >
+                    🗑️ Supprimer
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
 
         {activeTab === "currencies" && (
           <div>

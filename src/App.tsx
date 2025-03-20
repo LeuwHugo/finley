@@ -7,6 +7,7 @@ import Comptes from "./pages/Comptes";
 import Transactions from "./pages/Transactions";
 import Budget from "./pages/Budget"; // ✅ Import de la nouvelle page Budget
 import Settings from "./pages/Settings";
+import Credits from "./pages/Credits";
 import "./index.css";
 
 const App = () => (
@@ -18,6 +19,7 @@ const App = () => (
         <Route path="transactions" element={<Transactions />} />
         <Route path="budget" element={<Budget />} /> {/* ✅ Ajout de la route Budget */}
         <Route path="settings" element={<Settings />} />
+        <Route path="/credits" element={<Credits />} />
       </Route>
     </Routes>
   </Router>

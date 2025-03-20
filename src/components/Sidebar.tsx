@@ -24,7 +24,8 @@ const Sidebar = () => {
         <SidebarItem to="/comptes" icon={<FiCreditCard size={22} />} label="Comptes" isCollapsed={isCollapsed} />
         <SidebarItem to="/transactions" icon={<FiTrendingUp size={22} />} label="Transactions" isCollapsed={isCollapsed} />
         <SidebarItem to="/budget" icon={<FiPieChart size={22} />} label="Budget" isCollapsed={isCollapsed} /> {/* ✅ Ajout de l'onglet Budget */}
-        <SidebarItem to="/settings" icon={<FiSettings size={22} />} label="Paramètres" isCollapsed={isCollapsed} />
+        <SidebarItem to="/credits" icon={<FiCreditCard size={22} />} label="Crédits" isCollapsed={isCollapsed} />
+        <SidebarItem to="/settings" icon={<FiSettings size={22} />} label="Paramètres" isCollapsed={isCollapsed} /> 
       </nav>
     </div>
   );
