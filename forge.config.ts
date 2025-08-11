@@ -38,6 +38,8 @@ const config: ForgeConfig = {
           },
         ],
       },
+      // 🔥 Ajout d'options pour améliorer la stabilité
+      devContentSecurityPolicy: "default-src 'self' 'unsafe-eval' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline';",
     }),
   ],
 };

@@ -19,7 +19,17 @@ const createWindow = (): void => {
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,
+      nodeIntegration: false,
+      enableRemoteModule: false,
+      // 🔥 Ajout d'options pour améliorer la stabilité du preload
+      worldSafeExecuteJavaScript: true,
+      allowRunningInsecureContent: false,
     },
+  });
+
+  // 🔥 Gestion d'erreur pour le preload script
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    console.warn('Failed to load:', validatedURL, errorCode, errorDescription);
   });
 
   // Déterminer si l'application est en mode développement
@@ -35,24 +45,36 @@ const createWindow = (): void => {
             ? "default-src 'self' 'unsafe-eval'; " +
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
               "connect-src 'self' ws://localhost:3000 https://srunnvweahqpxvmzxxsc.supabase.co https://api.coingecko.com; " +
-              "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co/storage/v1/object/public/logos/; " +
+              "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co; " +
               "style-src 'self' 'unsafe-inline';"
             : "default-src 'self'; " +
               "script-src 'self'; " +
               "connect-src 'self' https://srunnvweahqpxvmzxxsc.supabase.co https://api.coingecko.com; " +
-              "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co/storage/v1/object/public/logos/; " +
+              "img-src 'self' data: https://srunnvweahqpxvmzxxsc.supabase.co; " +
               "style-src 'self' 'unsafe-inline';",
         ],
       },
     });
   });
 
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  // 🔥 Ajout d'un délai pour s'assurer que le preload est prêt
+  setTimeout(() => {
+    mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  }, 100);
 
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
 };
+
+// 🔥 Amélioration de la gestion des erreurs
+app.on('render-process-gone', (event, webContents, details) => {
+  console.error('Render process gone:', details);
+});
+
+app.on('child-process-gone', (event, details) => {
+  console.error('Child process gone:', details);
+});
 
 app.on("ready", createWindow);
 

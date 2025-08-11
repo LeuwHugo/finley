@@ -2,46 +2,160 @@ import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabase";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-const COLORS = ["#4CAF50", "#FF9800", "#2196F3"]; // Couleurs pour chaque budget
+const getLastDayOfMonth = (year: number, month: number) => {
+  return new Date(year, month, 0).getDate();
+};
+
+interface BudgetData {
+  name: string;
+  value: number;
+  percentage: number;
+  color: string;
+}
+
+interface BudgetSetting {
+  percentage: number;
+  category_id: string;
+}
+
+interface BudgetCategory {
+  id: string;
+  name: string;
+  color: string;
+}
 
 const Budget = () => {
   const [income, setIncome] = useState(0);
-  const [budgetVie] = useState(50);
-  const [budgetLoisir] = useState(20);
-  const [budgetInvestissement] = useState(30);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [categories, setCategories] = useState<BudgetData[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTotalIncome(); // Récupérer les revenus en fonction des transactions
+    fetchTotalIncome();
   }, [selectedMonth, selectedYear]);
 
+  useEffect(() => {
+    if (income > 0) {
+      fetchBudgetCategories();
+    } else {
+      setCategories([]);
+    }
+  }, [income, selectedMonth, selectedYear]);
+
   const fetchTotalIncome = async () => {
+    setLoading(true);
+    const lastDay = getLastDayOfMonth(selectedYear, selectedMonth);
+    const startDate = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-01`;
+    const endDate = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${lastDay}`;
+
     const { data: incomes, error } = await supabase
       .from("transactions")
       .select("amount")
       .eq("type", "income")
-      .gte("date", `${selectedYear}-${selectedMonth}-01`)
-      .lte("date", `${selectedYear}-${selectedMonth}-31`);
+      .gte("date", startDate)
+      .lte("date", endDate);
 
     if (error) {
       console.error("Erreur récupération revenus :", error.message);
+      setLoading(false);
       return;
     }
 
-    // Calcul du revenu total du mois
-    const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+    const totalIncome = incomes?.reduce((sum, income) => sum + income.amount, 0) || 0;
     setIncome(totalIncome);
-
-    console.log(`💰 Revenu total calculé pour ${selectedMonth}/${selectedYear} : ${totalIncome}€`);
+    setLoading(false);
   };
 
-  // Préparation des données pour le graphique en fonction du revenu du mois
-  const budgetData = [
-    { name: "Budget Vie", value: (income * budgetVie) / 100 },
-    { name: "Budget Loisirs & Shopping", value: (income * budgetLoisir) / 100 },
-    { name: "Budget Investissement", value: (income * budgetInvestissement) / 100 },
-  ];
+  const fetchBudgetCategories = async () => {
+    // D'abord, récupérer les budget_settings
+    const { data: budgetSettings, error } = await supabase
+      .from("budget_settings")
+      .select("percentage, category_id")
+      .eq("month", selectedMonth)
+      .eq("year", selectedYear);
+  
+    if (!error && budgetSettings && budgetSettings.length === 0) {
+      // Appel auto duplication depuis mois précédent
+      const prevMonth = selectedMonth === 1 ? 12 : selectedMonth - 1;
+      const prevYear = selectedMonth === 1 ? selectedYear - 1 : selectedYear;
+  
+      const { error: funcError } = await supabase.rpc("duplicate_budget_settings", {
+        from_month: prevMonth,
+        from_year: prevYear,
+        to_month: selectedMonth,
+        to_year: selectedYear,
+      });
+  
+      if (!funcError) {
+        // Re-fetch après duplication
+        const { data: newBudgetSettings, error: newError } = await supabase
+          .from("budget_settings")
+          .select("percentage, category_id")
+          .eq("month", selectedMonth)
+          .eq("year", selectedYear);
+  
+        if (!newError && newBudgetSettings) {
+          await processBudgetSettings(newBudgetSettings);
+        }
+      }
+    } else if (budgetSettings) {
+      await processBudgetSettings(budgetSettings);
+    }
+  };
+
+  const processBudgetSettings = async (settings: BudgetSetting[]) => {
+    // Récupérer tous les category_ids uniques
+    const categoryIds = settings.map(s => s.category_id).filter(Boolean);
+    
+    if (categoryIds.length === 0) {
+      setCategories([]);
+      return;
+    }
+
+    // Récupérer les catégories correspondantes
+    const { data: categories, error } = await supabase
+      .from("budget_categories")
+      .select("id, name, color")
+      .in("id", categoryIds);
+
+    if (error) {
+      console.error("Erreur récupération catégories:", error);
+      return;
+    }
+
+    // Créer un map pour accéder rapidement aux catégories
+    const categoryMap = categories?.reduce((acc, cat: BudgetCategory) => {
+      acc[cat.id] = cat;
+      return acc;
+    }, {} as Record<string, BudgetCategory>) || {};
+
+    // Formater les données
+    const formatted = settings.map((setting) => {
+      const category = categoryMap[setting.category_id];
+      return {
+        name: category?.name || "Inconnue",
+        value: income * (setting.percentage / 100),
+        percentage: setting.percentage,
+        color: category?.color || "#8884d8",
+      };
+    });
+
+    setCategories(formatted);
+  };
+
+  const totalBudgetPercent = categories.reduce((acc, cat) => acc + cat.percentage, 0);
+
+  if (loading) {
+    return (
+      <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement du budget...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -77,15 +191,15 @@ const Budget = () => {
         <div className="bg-gray-200 text-gray-900 p-4 rounded-lg shadow-md text-center font-semibold">
           💰 Revenu du mois : {income.toFixed(2)} €
         </div>
-        <div className="bg-green-100 text-green-800 p-4 rounded-lg shadow-md text-center font-semibold">
-          🏠 Budget Vie : {(income * budgetVie / 100).toFixed(2)} € ({budgetVie}%)
-        </div>
-        <div className="bg-orange-100 text-orange-800 p-4 rounded-lg shadow-md text-center font-semibold">
-          🎉 Budget Loisirs : {(income * budgetLoisir / 100).toFixed(2)} € ({budgetLoisir}%)
-        </div>
-        <div className="bg-blue-100 text-blue-800 p-4 rounded-lg shadow-md text-center font-semibold">
-          📈 Budget Investissement : {(income * budgetInvestissement / 100).toFixed(2)} € ({budgetInvestissement}%)
-        </div>
+        {categories.map((cat, index) => (
+          <div
+            key={index}
+            className="p-4 rounded-lg shadow-md text-center font-semibold"
+            style={{ backgroundColor: cat.color + "22", color: cat.color }}
+          >
+            {cat.name} : {cat.value.toFixed(2)} € ({cat.percentage}%)
+          </div>
+        ))}
       </div>
 
       {/* Diagramme circulaire amélioré avec légende */}
@@ -96,25 +210,32 @@ const Budget = () => {
           <ResponsiveContainer width="100%" height={400}>
             <PieChart>
               <Pie
-                data={budgetData}
+                data={categories}
                 cx="50%"
                 cy="50%"
                 innerRadius={90}
-                outerRadius={140} // 🔥 Ajustement pour améliorer la lisibilité
+                outerRadius={140}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, value }) => `${name}: ${value.toFixed(2)} €`} // 🔥 Ajout des labels directement sur le graphique
+                label={({ name, value }) => `${name}: ${value.toFixed(2)} €`}
               >
-                {budgetData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                {categories.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip formatter={(value) => (typeof value === 'number' ? `${value.toFixed(2)}€` : value)} />
-              <Legend verticalAlign="bottom" height={36} /> {/* 🔥 Légende affichée sous le graphique */}
+              <Legend verticalAlign="bottom" height={36} />
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Optionnel : alerte si le total ≠ 100% */}
+      {totalBudgetPercent !== 100 && (
+        <p className="text-red-600 font-semibold text-center">
+          ⚠️ La somme des pourcentages est de {totalBudgetPercent}% (devrait être 100%)
+        </p>
+      )}
     </div>
   );
 };

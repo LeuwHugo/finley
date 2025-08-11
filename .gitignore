@@ -91,3 +91,6 @@ out/
 # IDEs
 .vscode/
 .idea/
+
+# history
+.history/

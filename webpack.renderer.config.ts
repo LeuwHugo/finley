@@ -14,6 +14,14 @@ const rendererConfig: Configuration = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
   },
+  // 🔥 Ajout d'optimisations pour améliorer la stabilité
+  optimization: {
+    minimize: false, // Désactive la minification en développement pour faciliter le debug
+  },
+  // 🔥 Amélioration de la gestion des erreurs
+  stats: {
+    errorDetails: true,
+  },
 };
 
 // 🔥 Assure l'exportation correcte pour éviter l'erreur

@@ -7,16 +7,45 @@ import axios from "axios";
 
 Modal.setAppElement("#app");
 
+interface Account {
+  id: string;
+  name: string;
+  type: string;
+  initial_balance: number;
+  currency_id: string;
+  logo_path: string;
+  currencies?: {
+    code: string;
+    symbol: string;
+  };
+}
+
+interface Currency {
+  id: string;
+  name: string;
+  code: string;
+  symbol: string;
+}
+
+interface Transaction {
+  id: string;
+  type: string;
+  amount: number;
+  account_id: string;
+  related_account_id?: string;
+}
+
 const Comptes = () => {
-  const [accounts, setAccounts] = useState([]);
-  const [currencies, setCurrencies] = useState([]);
-  const [logos, setLogos] = useState([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [logos, setLogos] = useState<string[]>([]);
   const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filterType, setFilterType] = useState(""); // Filtrer par type de compte
-  const [filterCurrency, setFilterCurrency] = useState(""); // Filtrer par devise
-  const [selectedAccount, setSelectedAccount] = useState(null); // Compte sélectionné pour édition
-  const [transactions, setTransactions] = useState([]);
+  const [filterType, setFilterType] = useState("");
+  const [filterCurrency, setFilterCurrency] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [newAccount, setNewAccount] = useState({
     name: "",
@@ -24,65 +53,116 @@ const Comptes = () => {
     initial_balance: 0,
     currency_id: "",
     logo_path: "",
-    logo_file: null,
+    logo_file: null as File | null,
   });
 
-  // Charger les comptes, devises et logos existants
   useEffect(() => {
-    const fetchAccounts = async () => {
-      const { data, error } = await supabase
-        .from("accounts")
-        .select("*, currencies(code, symbol)");
+    fetchData();
+  }, []);
 
-      if (error) console.error("Erreur chargement comptes :", error.message);
-      else setAccounts(data);
-    };
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchAccounts(),
+        fetchCurrencies(),
+        fetchLogos(),
+        fetchExchangeRates(),
+        fetchTransactions()
+      ]);
+    } catch (error) {
+      console.error("Erreur lors du chargement des données:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchCurrencies = async () => {
-      const { data, error } = await supabase.from("currencies").select("*");
-      if (error) console.error("Erreur chargement devises :", error.message);
-      else setCurrencies(data);
-    };
+  const fetchAccounts = async () => {
+    const { data, error } = await supabase
+      .from("accounts")
+      .select("*, currencies(code, symbol)");
 
-    const fetchTransactions = async () => {
-      const { data, error } = await supabase
-        .from("transactions")
-        .select("id, type, amount, account_id, related_account_id");
+    if (error) {
+      console.error("Erreur chargement comptes :", error.message);
+      return;
+    }
+    setAccounts(data || []);
+  };
+
+  const fetchCurrencies = async () => {
+    const { data, error } = await supabase.from("currencies").select("*");
+    if (error) {
+      console.error("Erreur chargement devises :", error.message);
+      return;
+    }
+    setCurrencies(data || []);
+  };
+
+  const fetchTransactions = async () => {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("id, type, amount, account_id, related_account_id");
   
-      if (error) console.error("Erreur chargement transactions :", error.message);
-      else setTransactions(data);
-    };
+    if (error) {
+      console.error("Erreur chargement transactions :", error.message);
+      return;
+    }
+    setTransactions(data || []);
+  };
 
-    const fetchLogos = async () => {
+  const fetchLogos = async () => {
+    try {
       const { data, error } = await supabase.storage.from("logos").list("", {
         limit: 100,
         offset: 0,
         sortBy: { column: "name", order: "asc" },
       });
 
-      if (error) console.error("Erreur chargement logos :", error.message);
-      else setLogos(data.map((file) => file.name));
-    };
-
-    const fetchExchangeRates = async () => {
-      try {
-        const response = await axios.get(
-          `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,binancecoin,usd,eur,gbp,jpy&vs_currencies=eur`
-        );
-
-        console.log("📊 Taux de change reçus :", response.data);
-        setExchangeRates(response.data);
-      } catch (error) {
-        console.error("⚠️ Erreur récupération des taux de change :", error);
+      if (error) {
+        console.error("Erreur chargement logos :", error.message);
+        return;
       }
-    };
+      
+      // Filtrer pour ne garder que les fichiers (pas les dossiers)
+      const logoFiles = data?.filter(item => !item.id) || [];
+      setLogos(logoFiles.map((file) => file.name));
+    } catch (error) {
+      console.error("Erreur lors du chargement des logos:", error);
+    }
+  };
 
-    fetchAccounts();
-    fetchCurrencies();
-    fetchLogos();
-    fetchExchangeRates();
-    fetchTransactions();
-  }, []);
+  // Fonction pour uploader un nouveau logo
+  const handleLogoUpload = async (file: File) => {
+    try {
+      const fileName = `${Date.now()}_${file.name}`;
+      const { error } = await supabase.storage.from("logos").upload(fileName, file);
+      
+      if (error) {
+        console.error("Erreur upload logo :", error.message);
+        return false;
+      }
+      
+      // Recharger la liste des logos
+      await fetchLogos();
+      return true;
+    } catch (error) {
+      console.error("Erreur lors de l'upload:", error);
+      return false;
+    }
+  };
+
+  const fetchExchangeRates = async () => {
+    try {
+      const response = await axios.get(
+        `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,binancecoin,usd,eur,gbp,jpy&vs_currencies=eur`
+      );
+
+      console.log("📊 Taux de change reçus :", response.data);
+      setExchangeRates(response.data);
+    } catch (error) {
+      console.error("⚠️ Erreur récupération des taux de change :", error);
+    }
+  };
 
   // Filtrage des comptes
   const filteredAccounts = useMemo(() => {
@@ -95,7 +175,7 @@ const Comptes = () => {
 
   // Fonction pour convertir en EUR
   const convertToEuro = (amount: number, currencyCode: string) => {
-    if (currencyCode === "EUR") return Number(amount.toFixed(2)); // Déjà en EUR, arrondi
+    if (currencyCode === "EUR") return Number(amount.toFixed(2));
     if (!exchangeRates || Object.keys(exchangeRates).length === 0) return "Chargement...";
   
     const lowerCode = currencyCode?.toLowerCase();
@@ -103,20 +183,6 @@ const Comptes = () => {
       ? Number((amount / exchangeRates[lowerCode]).toFixed(2))
       : "Indisponible";
   };
-
-  // Fonction pour gérer l'ouverture de la modale en mode édition
-  interface Account {
-    id: number;
-    name: string;
-    type: string;
-    initial_balance: number;
-    currency_id: string;
-    logo_path: string;
-    currencies?: {
-      code: string;
-      symbol: string;
-    };
-  }
 
   const getAccountBalance = (account: Account) => {
     let balance = account.initial_balance;
@@ -133,11 +199,9 @@ const Comptes = () => {
       }
     });
   
-    return Number(balance.toFixed(2)); // 🔥 Force le format numérique avec 2 décimales
+    return Number(balance.toFixed(2));
   };
   
-  
-
   const handleEditAccount = (account: Account) => {
     setSelectedAccount(account);
     setNewAccount({
@@ -151,7 +215,6 @@ const Comptes = () => {
     setIsModalOpen(true);
   };
 
-  // Fonction pour gérer l'ajout ou la modification d'un compte
   const handleSaveAccount = async () => {
     let logoPath = newAccount.logo_path;
 
@@ -181,15 +244,16 @@ const Comptes = () => {
       if (error) {
         console.error("Erreur modification compte :", error.message);
       } else {
+        // Mise à jour de l'état au lieu de recharger la page
         setAccounts((prev) =>
           prev.map((acc) =>
-            acc.id === selectedAccount.id ? { ...acc, ...newAccount } : acc
+            acc.id === selectedAccount.id ? { ...acc, ...newAccount, logo_path: logoPath } : acc
           )
         );
       }
     } else {
       // Ajout d'un nouveau compte
-      const { error } = await supabase.from("accounts").insert([
+      const { data, error } = await supabase.from("accounts").insert([
         {
           name: newAccount.name,
           type: newAccount.type,
@@ -197,20 +261,31 @@ const Comptes = () => {
           currency_id: newAccount.currency_id,
           logo_path: logoPath,
         },
-      ]);
+      ]).select();
 
       if (error) {
         console.error("Erreur ajout compte :", error.message);
       } else {
-        window.location.reload(); // Recharge la page pour voir le nouveau compte
+        // Mise à jour de l'état au lieu de recharger la page
+        if (data && data[0]) {
+          setAccounts(prev => [...prev, data[0] as Account]);
+        }
       }
     }
 
     setIsModalOpen(false);
     setSelectedAccount(null);
+    // Réinitialiser le formulaire
+    setNewAccount({
+      name: "",
+      type: "checking",
+      initial_balance: 0,
+      currency_id: "",
+      logo_path: "",
+      logo_file: null,
+    });
   };
 
-  // Fonction pour supprimer un compte
   const handleDeleteAccount = async () => {
     if (!selectedAccount) return;
 
@@ -228,6 +303,17 @@ const Comptes = () => {
     }
   };
   
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement des comptes...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -324,7 +410,7 @@ const Comptes = () => {
                 {getAccountBalance(account)} {account.currencies?.symbol}
               </motion.p>
               <p className="text-gray-600 text-sm">
-                ≈ {convertToEuro(getAccountBalance(account), account.currencies?.code)} €
+                ≈ {convertToEuro(getAccountBalance(account), account.currencies?.code || "EUR")} €
               </p>
   
               {/* Badge devises */}
@@ -379,20 +465,59 @@ const Comptes = () => {
           placeholder="Solde initial"
           className="w-full p-2 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500"
           value={newAccount.initial_balance}
-          onChange={(e) => setNewAccount({ ...newAccount, initial_balance: parseFloat(e.target.value) })}
+          onChange={(e) => setNewAccount({ ...newAccount, initial_balance: parseFloat(e.target.value) || 0 })}
         />
            
         {/* Logo du compte */}  
-        <select
-          className="w-full p-2 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500"
-          value={newAccount.logo_path}
-          onChange={(e) => setNewAccount({ ...newAccount, logo_path: e.target.value })}
-           >
-        <option value="">Sélectionner un logo</option>
-          {logos.map((logo) => (
-          <option key={logo} value={`logos/${logo}`}>{logo}</option>
-          ))}
-        </select>
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Logo du compte</label>
+          
+          {/* Upload de nouveau logo */}
+          <div className="mb-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const success = await handleLogoUpload(file);
+                  if (success) {
+                    setNewAccount({ ...newAccount, logo_path: `logos/${file.name}` });
+                  }
+                }
+              }}
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">Uploader un nouveau logo</p>
+          </div>
+          
+          {/* Sélection de logo existant */}
+          <select
+            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            value={newAccount.logo_path}
+            onChange={(e) => setNewAccount({ ...newAccount, logo_path: e.target.value })}
+          >
+            <option value="">Sélectionner un logo existant</option>
+            {logos.map((logo) => (
+              <option key={logo} value={`logos/${logo}`}>{logo}</option>
+            ))}
+          </select>
+          
+          {/* Aperçu du logo sélectionné */}
+          {newAccount.logo_path && (
+            <div className="mt-2 flex items-center gap-2">
+              <img
+                src={getImageUrl(newAccount.logo_path)}
+                alt="Logo sélectionné"
+                className="w-8 h-8 object-contain border rounded"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <span className="text-sm text-gray-600">{newAccount.logo_path}</span>
+            </div>
+          )}
+        </div>
 
         {/* Sélecteur de devise */}
         <select

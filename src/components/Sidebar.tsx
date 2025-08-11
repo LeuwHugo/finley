@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FiHome, FiCreditCard, FiTrendingUp, FiSettings, FiMenu, FiX, FiPieChart } from "react-icons/fi";
+import { useLanguage } from "./LanguageProvider";
 
 const Sidebar = () => {
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const navItems = [
+    { path: "/", label: t("navigation.dashboard"), icon: "📊" },
+    { path: "/comptes", label: t("navigation.accounts"), icon: "🏦" },
+    { path: "/transactions", label: t("navigation.transactions"), icon: "💳" },
+    { path: "/budget", label: t("navigation.budget"), icon: "💰" },
+    { path: "/credits", label: t("navigation.credits"), icon: "🏦" },
+    { path: "/recurring-expenses", label: t("navigation.recurringExpenses"), icon: "🔄" },
+    { path: "/settings", label: t("navigation.settings"), icon: "⚙️" },
+  ];
 
   return (
     <div className={`min-h-screen bg-gray-900 text-white flex flex-col transition-all duration-300 ${isCollapsed ? "w-16" : "w-64"}`}>
@@ -14,18 +25,21 @@ const Sidebar = () => {
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition cursor-pointer"
         >
-          {isCollapsed ? <FiMenu size={20} /> : <FiX size={20} />}
+          {isCollapsed ? "☰" : "✕"}
         </button>
       </div>
 
       {/* Navigation */}
       <nav className="flex flex-col gap-2 p-2">
-        <SidebarItem to="/" icon={<FiHome size={22} />} label="Dashboard" isCollapsed={isCollapsed} />
-        <SidebarItem to="/comptes" icon={<FiCreditCard size={22} />} label="Comptes" isCollapsed={isCollapsed} />
-        <SidebarItem to="/transactions" icon={<FiTrendingUp size={22} />} label="Transactions" isCollapsed={isCollapsed} />
-        <SidebarItem to="/budget" icon={<FiPieChart size={22} />} label="Budget" isCollapsed={isCollapsed} /> {/* ✅ Ajout de l'onglet Budget */}
-        <SidebarItem to="/credits" icon={<FiCreditCard size={22} />} label="Crédits" isCollapsed={isCollapsed} />
-        <SidebarItem to="/settings" icon={<FiSettings size={22} />} label="Paramètres" isCollapsed={isCollapsed} /> 
+        {navItems.map((item) => (
+          <SidebarItem 
+            key={item.path}
+            to={item.path} 
+            icon={item.icon} 
+            label={item.label} 
+            isCollapsed={isCollapsed} 
+          />
+        ))}
       </nav>
     </div>
   );
@@ -34,7 +48,7 @@ const Sidebar = () => {
 // Composant réutilisable pour chaque lien
 interface SidebarItemProps {
   to: string;
-  icon: React.ReactNode;
+  icon: string;
   label: string;
   isCollapsed: boolean;
 }
@@ -49,7 +63,7 @@ const SidebarItem = ({ to, icon, label, isCollapsed }: SidebarItemProps) => {
         }`
       }
     >
-      <div className="flex items-center justify-center w-10 h-10">
+      <div className="flex items-center justify-center w-10 h-10 text-xl">
         {icon}
       </div>
       {/* Texte masqué en mode réduit */}

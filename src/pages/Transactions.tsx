@@ -2,11 +2,56 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../utils/supabase";
 import { FiArrowUpRight, FiArrowDownLeft, FiRepeat, FiFilter, FiXCircle } from "react-icons/fi";
 
+interface Transaction {
+  id: string;
+  date: string;
+  name: string;
+  type: string;
+  amount: number;
+  recurring: boolean;
+  recurring_type?: string;
+  created_at: string;
+  account_id?: string;
+  category_id?: string;
+  related_account_id?: string;
+  transfer_type?: string;
+  accounts?: { id: string; name: string };
+  related_accounts?: { id: string; name: string };
+  transaction_categories?: { id: string; name: string };
+}
+
+interface Account {
+  id: string;
+  name: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface RawTransactionData {
+  id: string;
+  date: string;
+  name: string;
+  type: string;
+  amount: number;
+  recurring: boolean;
+  recurring_type?: string;
+  created_at: string;
+  account_id?: string;
+  category_id?: string;
+  related_account_id?: string;
+  transfer_type?: string;
+  accounts?: { id: string; name: string }[] | null;
+  related_accounts?: { id: string; name: string }[] | null;
+  transaction_categories?: { id: string; name: string }[] | null;
+}
+
 const Transactions = () => {
-  const [transactions, setTransactions] = useState([]);
-  //const today = new Date().toISOString().split("T")[0]; // Date du jour en format YYYY-MM-DD
-  const [accounts, setAccounts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [filterType, setFilterType] = useState("");
   const [filterAccount, setFilterAccount] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -14,55 +59,98 @@ const Transactions = () => {
   const [filterMonth, setFilterMonth] = useState("");
   const [filterDay, setFilterDay] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [loading, setLoading] = useState(true);
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Remet à minuit pour comparer uniquement les jours
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Par défaut, du plus récent au plus ancien
+  today.setHours(0, 0, 0, 0);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const [newTransaction, setNewTransaction] = useState({
     name: "",
     type: "income",
     amount: 0,
-    date: new Date().toISOString().slice(0, 10), // Format YYYY-MM-DD
+    date: new Date().toISOString().slice(0, 10),
     account_id: "",
     category_id: "",
     related_account_id: "",
     transfer_type: "",
     recurring: false,
     recurring_type: "",
-});
+  });
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      const { data, error } = await supabase
-        .from("transactions")
-        .select(`
-          id, date, name, type, amount, recurring, recurring_type, created_at,
-          accounts:account_id (id, name), 
-          related_accounts:related_account_id (id, name), 
-          transaction_categories (id, name)
-        `);
-    
-      if (error) console.error("Erreur chargement transactions :", error.message);
-      else setTransactions(data);
-    };
-
-    const fetchAccounts = async () => {
-      const { data, error } = await supabase.from("accounts").select("id, name");
-      if (error) console.error("Erreur chargement comptes :", error.message);
-      else setAccounts(data);
-    };
-
-    const fetchCategories = async () => {
-      const { data, error } = await supabase.from("transaction_categories").select("id, name");
-      if (error) console.error("Erreur chargement catégories :", error.message);
-      else setCategories(data);
-    };
-
-    fetchTransactions();
-    fetchAccounts();
-    fetchCategories();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchTransactions(),
+        fetchAccounts(),
+        fetchCategories()
+      ]);
+    } catch (error) {
+      console.error("Erreur lors du chargement des données:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTransactions = async () => {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select(`
+        id, date, name, type, amount, recurring, recurring_type, created_at,
+        accounts:account_id (id, name), 
+        related_accounts:related_account_id (id, name), 
+        transaction_categories (id, name)
+      `);
+  
+    if (error) {
+      console.error("Erreur chargement transactions :", error.message);
+      return;
+    }
+    
+    // Transformation des données pour correspondre à l'interface
+    const transformedData = data?.map((item: RawTransactionData) => ({
+      id: item.id,
+      date: item.date,
+      name: item.name,
+      type: item.type,
+      amount: item.amount,
+      recurring: item.recurring,
+      recurring_type: item.recurring_type,
+      created_at: item.created_at,
+      account_id: item.account_id,
+      category_id: item.category_id,
+      related_account_id: item.related_account_id,
+      transfer_type: item.transfer_type,
+      accounts: item.accounts?.[0] || null,
+      related_accounts: item.related_accounts?.[0] || null,
+      transaction_categories: item.transaction_categories?.[0] || null
+    })) || [];
+    
+    setTransactions(transformedData);
+  };
+
+  const fetchAccounts = async () => {
+    const { data, error } = await supabase.from("accounts").select("id, name");
+    if (error) {
+      console.error("Erreur chargement comptes :", error.message);
+      return;
+    }
+    setAccounts(data || []);
+  };
+
+  const fetchCategories = async () => {
+    const { data, error } = await supabase.from("transaction_categories").select("id, name");
+    if (error) {
+      console.error("Erreur chargement catégories :", error.message);
+      return;
+    }
+    setCategories(data || []);
+  };
 
   const filteredTransactions = useMemo(() => {
     return transactions
@@ -84,83 +172,73 @@ const Transactions = () => {
       });
   }, [transactions, filterType, filterAccount, filterCategory, filterYear, filterMonth, filterDay, sortOrder]);
   
+  const handleDeleteTransaction = async (transactionId: string) => {
+    if (!window.confirm("Voulez-vous vraiment supprimer cette transaction ?")) return;
+  
+    const { error } = await supabase
+      .from("transactions")
+      .delete()
+      .eq("id", transactionId);
+  
+    if (error) {
+      console.error("Erreur suppression transaction :", error.message);
+    } else {
+      // Mise à jour de l'état au lieu de recharger la page
+      setTransactions(prev => prev.filter(t => t.id !== transactionId));
+    }
+  };
 
-    const handleDeleteTransaction = async (transactionId: string | number) => {
-      if (!window.confirm("Voulez-vous vraiment supprimer cette transaction ?")) return;
-    
-      const { error } = await supabase
-        .from("transactions")
-        .delete()
-        .eq("id", transactionId);
-    
-      if (error) {
-        console.error("Erreur suppression transaction :", error.message);
-      } else {
-        window.location.reload();
-      }
-    };
+  const handleEditTransaction = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setNewTransaction({
+      name: transaction.name,
+      type: transaction.type,
+      amount: transaction.amount,
+      date: transaction.date.split("T")[0],
+      account_id: transaction.account_id || transaction.accounts?.id || "",
+      category_id: transaction.category_id || transaction.transaction_categories?.id || "",
+      related_account_id: transaction.related_account_id || "",
+      transfer_type: transaction.transfer_type || "",
+      recurring: transaction.recurring,
+      recurring_type: transaction.recurring ? transaction.recurring_type || "" : "",
+    });
+    setIsModalOpen(true);
+  };
 
-    const handleEditTransaction = (transaction: {
-      id: string;
-      name: string;
-      type: string;
-      amount: number;
-      date: string;
-      account_id: string | null;
-      category_id: string | null;
-      related_account_id?: string | null;
-      transfer_type?: string | null;
-      recurring: boolean;
-      recurring_type?: string | null;
-      accounts?: { id: string }; // Ajout de la relation correcte avec les comptes
-      transaction_categories?: { id: string }; // Ajout de la relation correcte avec les catégories
-    }) => {
-      setSelectedTransaction(transaction);
-      setNewTransaction({
-        name: transaction.name,
-        type: transaction.type,
-        amount: transaction.amount,
-        date: transaction.date.split("T")[0], // Format YYYY-MM-DD
-        account_id: transaction.account_id || transaction.accounts?.id || "", // Vérification correcte du compte
-        category_id: transaction.category_id || transaction.transaction_categories?.id || "", // Vérification correcte de la catégorie
-        related_account_id: transaction.related_account_id || "",
-        transfer_type: transaction.transfer_type || "",
-        recurring: transaction.recurring,
-        recurring_type: transaction.recurring ? transaction.recurring_type || "" : "", // Vérification des transactions récurrentes
-      });
-      setIsModalOpen(true);
+  const handleUpdateTransaction = async () => {
+    if (!selectedTransaction) return;
+  
+    const transactionData = {
+      name: newTransaction.name,
+      type: newTransaction.type,
+      amount: newTransaction.amount,
+      date: newTransaction.date,
+      account_id: newTransaction.account_id || null,
+      category_id: newTransaction.category_id || null,
+      related_account_id: newTransaction.type === "transfer" ? newTransaction.related_account_id || null : null,
+      transfer_type: newTransaction.type === "transfer" ? newTransaction.transfer_type || null : null,
+      recurring: newTransaction.recurring,
+      recurring_type: newTransaction.recurring ? newTransaction.recurring_type : null,
     };
-
-    const handleUpdateTransaction = async () => {
-      if (!selectedTransaction) return;
-    
-      const transactionData = {
-        name: newTransaction.name,
-        type: newTransaction.type,
-        amount: newTransaction.amount,
-        date: newTransaction.date,
-        account_id: newTransaction.account_id || null,
-        category_id: newTransaction.category_id || null,
-        related_account_id: newTransaction.type === "transfer" ? newTransaction.related_account_id || null : null,
-        transfer_type: newTransaction.type === "transfer" ? newTransaction.transfer_type || null : null,
-        recurring: newTransaction.recurring,
-        recurring_type: newTransaction.recurring ? newTransaction.recurring_type : null,
-      };
-    
-      const { error } = await supabase
-        .from("transactions")
-        .update(transactionData)
-        .eq("id", selectedTransaction.id);
-    
-      if (error) {
-        console.error("Erreur mise à jour transaction :", error.message);
-      } else {
-        setIsModalOpen(false);
-        setSelectedTransaction(null);
-        window.location.reload();
-      }
-    };
-    
+  
+    const { error } = await supabase
+      .from("transactions")
+      .update(transactionData)
+      .eq("id", selectedTransaction.id);
+  
+    if (error) {
+      console.error("Erreur mise à jour transaction :", error.message);
+    } else {
+      // Mise à jour de l'état au lieu de recharger la page
+      setTransactions(prev => prev.map(t => 
+        t.id === selectedTransaction.id 
+          ? { ...t, ...transactionData }
+          : t
+      ));
+      setIsModalOpen(false);
+      setSelectedTransaction(null);
+    }
+  };
   
   const handleAddTransaction = async () => {
     const transactionData = {
@@ -170,21 +248,38 @@ const Transactions = () => {
       date: newTransaction.date,
       recurring: newTransaction.recurring,
       recurring_type: newTransaction.recurring ? newTransaction.recurring_type : null,
-      account_id: newTransaction.account_id || null, // Si vide, met null
-      category_id: newTransaction.category_id || null, // Si vide, met null
-      related_account_id: newTransaction.type === "transfer" ? newTransaction.related_account_id || null : null, // Si pas un transfert, met null
-      transfer_type: newTransaction.type === "transfer" ? newTransaction.transfer_type || null : null, // Si pas un transfert, met null
+      account_id: newTransaction.account_id || null,
+      category_id: newTransaction.category_id || null,
+      related_account_id: newTransaction.type === "transfer" ? newTransaction.related_account_id || null : null,
+      transfer_type: newTransaction.type === "transfer" ? newTransaction.transfer_type || null : null,
     };
   
-    const { error } = await supabase.from("transactions").insert([transactionData]);
+    const { data, error } = await supabase.from("transactions").insert([transactionData]).select();
   
     if (error) {
       console.error("Erreur ajout transaction :", error.message);
     } else {
+      // Mise à jour de l'état au lieu de recharger la page
+      if (data && data[0]) {
+        setTransactions(prev => [data[0] as Transaction, ...prev]);
+      }
       setIsModalOpen(false);
-      window.location.reload(); // Recharge la page pour afficher la nouvelle transaction
+      // Réinitialiser le formulaire
+      setNewTransaction({
+        name: "",
+        type: "income",
+        amount: 0,
+        date: new Date().toISOString().slice(0, 10),
+        account_id: "",
+        category_id: "",
+        related_account_id: "",
+        transfer_type: "",
+        recurring: false,
+        recurring_type: "",
+      });
     }
-  }
+  };
+
   const totals = useMemo(() => {
     return filteredTransactions.reduce(
       (acc, transaction) => {
@@ -197,6 +292,17 @@ const Transactions = () => {
     );
   }, [filteredTransactions]);
 
+  if (loading) {
+    return (
+      <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement des transactions...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* En-tête */}
@@ -204,7 +310,22 @@ const Transactions = () => {
         <h1 className="text-4xl font-bold text-gray-900">📜 Transactions</h1>
         <button
           className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:scale-105 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-xl"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setSelectedTransaction(null);
+            setNewTransaction({
+              name: "",
+              type: "income",
+              amount: 0,
+              date: new Date().toISOString().slice(0, 10),
+              account_id: "",
+              category_id: "",
+              related_account_id: "",
+              transfer_type: "",
+              recurring: false,
+              recurring_type: "",
+            });
+            setIsModalOpen(true);
+          }}
         >
           ➕ Ajouter une transaction
         </button>
@@ -328,9 +449,11 @@ const Transactions = () => {
   
       {/* Popup "En cours de développement" */}
       {isModalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h2 className="text-xl font-bold mb-4">Ajouter une transaction</h2>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[90vh] overflow-y-auto">
+      <h2 className="text-xl font-bold mb-4">
+        {selectedTransaction ? "Modifier la transaction" : "Ajouter une transaction"}
+      </h2>
 
       {/* Nom de la transaction */}
       <input
@@ -358,7 +481,7 @@ const Transactions = () => {
         placeholder="Montant"
         className="w-full p-2 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500"
         value={newTransaction.amount}
-        onChange={(e) => setNewTransaction({ ...newTransaction, amount: parseFloat(e.target.value) })}
+        onChange={(e) => setNewTransaction({ ...newTransaction, amount: parseFloat(e.target.value) || 0 })}
       />
 
       {/* Date */}
@@ -398,7 +521,7 @@ const Transactions = () => {
         <select
           className="w-full p-2 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500"
           value={newTransaction.related_account_id}
-          onChange={(e) => setNewTransaction({ ...newTransaction, related_account_id: e.target.value || null })}
+          onChange={(e) => setNewTransaction({ ...newTransaction, related_account_id: e.target.value })}
         >
           <option value="">Sélectionner le compte cible</option>
           {accounts.map((account) => (
@@ -412,7 +535,7 @@ const Transactions = () => {
           <select
             className="w-full p-2 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500"
             value={newTransaction.transfer_type}
-            onChange={(e) => setNewTransaction({ ...newTransaction, transfer_type: e.target.value || null })}
+            onChange={(e) => setNewTransaction({ ...newTransaction, transfer_type: e.target.value })}
           >
             <option value="">Type de transfert</option>
             <option value="saving">Épargne</option>
