@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase, getImageUrl } from "../utils/supabase";
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useLanguage } from "../components/LanguageProvider";
 import LanguageSelector from "../components/LanguageSelector";
 
 const COLORS = ["#4CAF50", "#FF9800", "#2196F3", "#FF5722", "#9C27B0"];
@@ -36,6 +37,7 @@ interface CategoryStat {
 }
 
 const Dashboard = () => {
+  const { t } = useLanguage();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budgetSettings, setBudgetSettings] = useState<BudgetSetting[]>([]);
@@ -308,7 +310,7 @@ const Dashboard = () => {
       <div className="flex-1 p-6 bg-gray-100 h-full flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des données...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -341,10 +343,10 @@ const Dashboard = () => {
           
           {/* En-tête avec Titre & Bouton Afficher Tous */}
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold tracking-wide">💰 Solde Total</h2>
-            <button className="text-sm bg-white text-blue-600 px-3 py-1 font-semibold rounded-full shadow-md hover:bg-gray-100 transition">
-              Tous les Comptes
-            </button>
+                      <h2 className="text-2xl font-bold tracking-wide">💰 {t('dashboard.totalBalance')}</h2>
+          <button className="text-sm bg-white text-blue-600 px-3 py-1 font-semibold rounded-full shadow-md hover:bg-gray-100 transition">
+            {t('dashboard.allAccounts')}
+          </button>
           </div>
 
           {/* 🔹 Montant Total */}
@@ -352,7 +354,7 @@ const Dashboard = () => {
 
           {/* 🔹 Liste des comptes avec un carrousel horizontal */}
           <div className="mt-4">
-            <h3 className="text-lg font-semibold opacity-90">Détails par compte :</h3>
+            <h3 className="text-lg font-semibold opacity-90">{t('dashboard.accountDetails')} :</h3>
             <div className="mt-2 overflow-x-auto flex gap-4 scroll-smooth scroll-snap-x-mandatory px-1 py-2">
               
               {accounts.map((account) => (
@@ -409,7 +411,7 @@ const Dashboard = () => {
   
         {/* 📅 Transactions par Semaine */}
         <div className="col-span-2 row-span-2 bg-white p-8 rounded-2xl shadow-lg flex flex-col justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">📅 Transactions par Semaine</h2>
+          <h2 className="text-2xl font-bold text-gray-900">📅 {t('dashboard.weeklyTransactions')}</h2>
 
           <div className="mt-6 flex justify-center">
             <ResponsiveContainer width="100%" height={250}>
@@ -418,8 +420,8 @@ const Dashboard = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="income" fill="#4CAF50" name="Revenus" barSize={40} />
-              <Bar dataKey="expense" fill="#FF5722" name="Dépenses" barSize={40} />
+              <Bar dataKey="income" fill="#4CAF50" name={t('dashboard.income')} barSize={40} />
+              <Bar dataKey="expense" fill="#FF5722" name={t('dashboard.expenses')} barSize={40} />
             </BarChart>
             </ResponsiveContainer>
           </div>
@@ -428,7 +430,7 @@ const Dashboard = () => {
   
         {/* 📌 Dépenses par Catégorie */}
         <div className="col-span-2 row-span-2 bg-white p-6 rounded-lg shadow-md flex flex-col">
-          <h2 className="text-xl font-bold mb-4 text-gray-900">📌 Dépenses par Catégorie</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900">📌 {t('dashboard.expensesByCategory')}</h2>
           <div className="flex-1 flex flex-col items-center justify-center">
             <ResponsiveContainer width="100%" height={250}>
             <PieChart>
@@ -455,13 +457,13 @@ const Dashboard = () => {
   
         {/* 📅 Budget Mensuel */}
         <div className="col-span-2 row-span-2 bg-white p-8 rounded-lg shadow-md flex flex-col justify-between">
-            <h2 className="text-xl font-bold">📅 Budget Mensuel</h2>
+            <h2 className="text-xl font-bold">📅 {t('dashboard.monthlyBudget')}</h2>
 
             {budgetSettings && budgetSettings.length > 0 ? (
               <div className="flex flex-col items-center">
                 {/* 🔹 Augmenter la taille du texte du revenu */}
                 <h3 className="text-lg font-semibold text-gray-600 mb-4 text-center">
-                  Revenu du Mois : {totalIncome.toFixed(2)} €
+                  {t('dashboard.monthlyIncome')} : {totalIncome.toFixed(2)} €
                 </h3>
 
                 {/* �� Graphique avec légende */}
@@ -495,13 +497,13 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-gray-500 text-center mt-4">Aucun budget défini pour ce mois.</p>
+              <p className="text-gray-500 text-center mt-4">{t('dashboard.noDataForMonth')}</p>
             )}
           </div>
 
         {/* 💳 Dépense Moyenne par Transaction */}
         <div className="col-span-2 row-span-1 bg-white p-8 rounded-lg shadow-md flex flex-col justify-center">
-          <h2 className="text-xl font-bold text-gray-900">💳 Dépense Moyenne</h2>
+          <h2 className="text-xl font-bold text-gray-900">💳 {t('dashboard.averageExpense')}</h2>
 
           <div className="flex flex-col items-center mt-4">
             <p className="text-4xl font-extrabold text-blue-600">
@@ -522,7 +524,7 @@ const Dashboard = () => {
             })()}
 
             </p>
-            <p className="text-gray-500 text-sm">par transaction</p>
+            <p className="text-gray-500 text-sm">{t('dashboard.perTransaction')}</p>
           </div>
         </div>
 
@@ -530,7 +532,7 @@ const Dashboard = () => {
         {/* 📆 Solde du Mois */}
         <div className="col-span-2 row-span-1 bg-white p-8 rounded-lg shadow-md flex flex-col justify-center">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-            📆 Solde du Mois
+            📆 {t('dashboard.monthlyBalance')}
           </h2>
 
           <div className="flex flex-col items-center">
@@ -544,7 +546,7 @@ const Dashboard = () => {
             >
               {((monthlyStats[0]?.income || 0) - (monthlyStats[0]?.expense || 0)).toFixed(1)} €
             </p>
-            <p className="text-gray-500 text-sm">Revenus - Dépenses</p>
+            <p className="text-gray-500 text-sm">{t('dashboard.income')} - {t('dashboard.expenses')}</p>
           </div>
 
           {/* 🔹 Détails des revenus et dépenses arrondis au dixième */}
@@ -553,14 +555,14 @@ const Dashboard = () => {
               <span className="text-green-600 font-semibold">
                 + {(monthlyStats[0]?.income || 0).toFixed(1)} €
               </span>
-              <span className="text-gray-500 text-sm">Revenus</span>
+              <span className="text-gray-500 text-sm">{t('dashboard.income')}</span>
             </div>
             <div className="border-l border-gray-300 h-6 mx-4"></div>
             <div className="flex flex-col items-center">
               <span className="text-red-600 font-semibold">
                 - {(monthlyStats[0]?.expense || 0).toFixed(1)} €
               </span>
-              <span className="text-gray-500 text-sm">Dépenses</span>
+              <span className="text-gray-500 text-sm">{t('dashboard.expenses')}</span>
             </div>
           </div>
 
@@ -580,7 +582,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ) : (
-              <p className="text-gray-500 text-center">Aucune donnée pour ce mois.</p>
+              <p className="text-gray-500 text-center">{t('dashboard.noDataForMonth')}</p>
             )}
           </div>
         </div>

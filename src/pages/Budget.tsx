@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../utils/supabase";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { useLanguage } from "../components/LanguageProvider";
 
 const getLastDayOfMonth = (year: number, month: number) => {
   return new Date(year, month, 0).getDate();
@@ -25,6 +26,7 @@ interface BudgetCategory {
 }
 
 const Budget = () => {
+  const { t } = useLanguage();
   const [income, setIncome] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -151,7 +153,7 @@ const Budget = () => {
       <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement du budget...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -159,7 +161,7 @@ const Budget = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-4">📊 Budget Mensuel</h1>
+              <h1 className="text-3xl font-bold mb-4">📊 {t('budget.title')}</h1>
 
       {/* Sélecteur de mois et année */}
       <div className="flex gap-4 mb-4">

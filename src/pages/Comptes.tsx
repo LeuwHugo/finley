@@ -4,6 +4,7 @@ import { FiPlus } from "react-icons/fi";
 import { motion } from "framer-motion";
 import Modal from "react-modal";
 import axios from "axios";
+import { useLanguage } from "../components/LanguageProvider";
 
 Modal.setAppElement("#app");
 
@@ -36,6 +37,7 @@ interface Transaction {
 }
 
 const Comptes = () => {
+  const { t } = useLanguage();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [logos, setLogos] = useState<string[]>([]);
@@ -318,7 +320,7 @@ const Comptes = () => {
     <div className="p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">💰 Mes Comptes</h1>
+        <h1 className="text-3xl font-bold text-gray-900">💰 {t('accounts.title')}</h1>
         <button
           className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-xl"
           onClick={() => {
@@ -334,7 +336,7 @@ const Comptes = () => {
             setIsModalOpen(true);
           }}
         >
-          <FiPlus size={20} /> Ajouter un compte
+                      <FiPlus size={20} /> {t('accounts.addAccount')}
         </button>
       </div>
   
@@ -435,7 +437,7 @@ const Comptes = () => {
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
       >
         <h2 className="text-xl font-bold mb-4">
-          {selectedAccount ? "Modifier le compte" : "Ajouter un compte"}
+          {selectedAccount ? t('accounts.editAccount') : t('accounts.addAccount')}
         </h2>
   
         {/* Nom du compte */}

@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../utils/supabase";
+import { useLanguage } from "../components/LanguageProvider";
 import { FiArrowUpRight, FiArrowDownLeft, FiRepeat, FiFilter, FiXCircle } from "react-icons/fi";
 
 interface Transaction {
@@ -49,6 +50,7 @@ interface RawTransactionData {
 }
 
 const Transactions = () => {
+  const { t } = useLanguage();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -297,7 +299,7 @@ const Transactions = () => {
       <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des transactions...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -307,7 +309,7 @@ const Transactions = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* En-tête */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-bold text-gray-900">📜 Transactions</h1>
+        <h1 className="text-4xl font-bold text-gray-900">📜 {t('transactions.title')}</h1>
         <button
           className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:scale-105 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-xl"
           onClick={() => {
@@ -327,7 +329,7 @@ const Transactions = () => {
             setIsModalOpen(true);
           }}
         >
-          ➕ Ajouter une transaction
+                     ➕ {t('transactions.addTransaction')}
         </button>
       </div>
   
@@ -336,21 +338,21 @@ const Transactions = () => {
         <FiFilter className="text-gray-600 text-2xl" />
   
         <select className="p-2 border rounded-lg bg-gray-50" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-          <option value="">Tous les types</option>
-          <option value="income">Revenus</option>
-          <option value="expense">Dépenses</option>
-          <option value="transfer">Transferts</option>
+                     <option value="">{t('transactions.allTypes')}</option>
+           <option value="income">{t('transactions.types.income')}</option>
+           <option value="expense">{t('transactions.types.expense')}</option>
+           <option value="transfer">{t('transactions.types.transfer')}</option>
         </select>
   
         <select className="p-2 border rounded-lg bg-gray-50" value={filterAccount} onChange={(e) => setFilterAccount(e.target.value)}>
-          <option value="">Tous les comptes</option>
+                     <option value="">{t('transactions.allAccounts')}</option>
           {accounts.map((account) => (
             <option key={account.id} value={account.id}>{account.name}</option>
           ))}
         </select>
   
         <select className="p-2 border rounded-lg bg-gray-50" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
-          <option value="">Toutes les catégories</option>
+                     <option value="">{t('transactions.allCategories')}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>{category.name}</option>
           ))}
@@ -363,14 +365,14 @@ const Transactions = () => {
         </select>
   
         <select className="p-2 border rounded-lg bg-gray-50" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
-          <option value="">Tous les mois</option>
+                     <option value="">{t('transactions.allMonths')}</option>
           {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
             <option key={month} value={month}>{new Date(0, month - 1).toLocaleString('fr-FR', { month: 'long' })}</option>
           ))}
         </select>
   
         <select className="p-2 border rounded-lg bg-gray-50" value={filterDay} onChange={(e) => setFilterDay(e.target.value)}>
-          <option value="">Tous les jours</option>
+                     <option value="">{t('transactions.allDays')}</option>
           {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
             <option key={day} value={day}>{day}</option>
           ))}
@@ -378,25 +380,25 @@ const Transactions = () => {
   
         <button className="bg-red-500 text-white p-2 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
           onClick={() => { setFilterType(""); setFilterAccount(""); setFilterCategory(""); setFilterYear(new Date().getFullYear()); setFilterMonth(""); setFilterDay(""); }}>
-          <FiXCircle /> Réinitialiser
+                     <FiXCircle /> {t('transactions.reset')}
         </button>
       </div>
   
       {/* Totaux */}
       <div className="grid grid-cols-3 gap-6 mb-6">
         <div className="bg-green-100 text-green-800 p-4 rounded-lg shadow-md text-center font-semibold">
-          📈 Total Revenus : {totals.income.toFixed(2)} €
+                     📈 {t('transactions.totalIncome')} : {totals.income.toFixed(2)} €
         </div>
         <div className="bg-red-100 text-red-800 p-4 rounded-lg shadow-md text-center font-semibold">
-          📉 Total Dépenses : {totals.expense.toFixed(2)} €
+                     📉 {t('transactions.totalExpenses')} : {totals.expense.toFixed(2)} €
         </div>
         <div className="bg-blue-100 text-blue-800 p-4 rounded-lg shadow-md text-center font-semibold">
-          🔄 Total Transferts : {totals.transfer.toFixed(2)} €
+                     🔄 {t('transactions.totalTransfers')} : {totals.transfer.toFixed(2)} €
         </div>
       </div>
   
       {/* Tableau */}
-      <p className="text-sm text-gray-600 mb-2">📅 Les paiements à venir sont mis en évidence en jaune.</p>
+             <p className="text-sm text-gray-600 mb-2">📅 {t('transactions.upcomingPayments')}</p>
       <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full border rounded-lg">
         <thead className="bg-gray-200 text-gray-700">

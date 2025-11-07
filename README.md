@@ -71,7 +71,7 @@ Before running Finley, make sure you have:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/finley.git
+   git clone https://github.com/LeuwHugo/finley.git
    cd finley
    ```
 
@@ -227,23 +227,5 @@ finley/
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Support
-
-If you encounter any issues or have questions:
-- Create an issue on GitHub
-- Check the documentation
-- Review the troubleshooting guide
-
-## 🎯 Roadmap
-
-- [ ] Mobile application
-- [ ] Advanced reporting and analytics
-- [ ] Investment portfolio tracking
-- [ ] Bill reminders and notifications
-- [ ] Data import/export features
-- [ ] Multi-user support
-- [ ] Advanced security features
-
----
 
 **Finley** - Take control of your financial future! 💰✨

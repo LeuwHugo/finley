@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase, getImageUrl, ensureLogosBucket } from "../utils/supabase";
+import { useLanguage } from "../components/LanguageProvider";
 
 interface Account {
   id: string;
@@ -42,6 +43,7 @@ interface BudgetSetting {
 }
 
 const Settings = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("accounts");
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -322,7 +324,7 @@ const Settings = () => {
       <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des paramètres...</p>
+                     <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -330,7 +332,7 @@ const Settings = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">⚙️ Paramètres</h1>
+             <h1 className="text-3xl font-bold mb-6">⚙️ {t('settings.title')}</h1>
 
       <div className="flex gap-4 mb-4">
         <select value={selectedBudgetMonth} onChange={(e) => setSelectedBudgetMonth(parseInt(e.target.value))} className="border p-2 rounded-md">
@@ -347,12 +349,12 @@ const Settings = () => {
 
       {/* Navigation des onglets */}
       <div className="flex space-x-4 border-b pb-3">
-        <button onClick={() => setActiveTab("accounts")} className={`py-2 px-4 ${activeTab === "accounts" ? "border-b-2 border-blue-500" : ""}`}>Comptes</button>
-        <button onClick={() => setActiveTab("categories")} className={`py-2 px-4 ${activeTab === "categories" ? "border-b-2 border-blue-500" : ""}`}>Catégories de Transactions</button>
-        <button onClick={() => setActiveTab("currencies")} className={`py-2 px-4 ${activeTab === "currencies" ? "border-b-2 border-blue-500" : ""}`}>Devises</button>
-        <button onClick={() => setActiveTab("credit_categories")} className={`py-2 px-4 ${activeTab === "credit_categories" ? "border-b-2 border-blue-500" : ""}`}>Catégories de Crédits</button>
-        <button onClick={() => setActiveTab("budget_categories")} className={`py-2 px-4 ${activeTab === "budget_categories" ? "border-b-2 border-blue-500" : ""}`}>Catégories Budget</button>
-        <button onClick={() => setActiveTab("logos")} className={`py-2 px-4 ${activeTab === "logos" ? "border-b-2 border-blue-500" : ""}`}>Logos</button>
+                 <button onClick={() => setActiveTab("accounts")} className={`py-2 px-4 ${activeTab === "accounts" ? "border-b-2 border-blue-500" : ""}`}>{t('settings.accounts')}</button>
+         <button onClick={() => setActiveTab("categories")} className={`py-2 px-4 ${activeTab === "categories" ? "border-b-2 border-blue-500" : ""}`}>{t('settings.transactionCategories')}</button>
+         <button onClick={() => setActiveTab("currencies")} className={`py-2 px-4 ${activeTab === "currencies" ? "border-b-2 border-blue-500" : ""}`}>{t('settings.currencies')}</button>
+         <button onClick={() => setActiveTab("credit_categories")} className={`py-2 px-4 ${activeTab === "credit_categories" ? "border-b-2 border-blue-500" : ""}`}>{t('settings.creditCategories')}</button>
+         <button onClick={() => setActiveTab("budget_categories")} className={`py-2 px-4 ${activeTab === "budget_categories" ? "border-b-2 border-blue-500" : ""}`}>{t('settings.budgetCategories')}</button>
+         <button onClick={() => setActiveTab("logos")} className={`py-2 px-4 ${activeTab === "logos" ? "border-b-2 border-blue-500" : ""}`}>{t('settings.logos')}</button>
       </div>
 
       {/* Contenu des onglets */}
